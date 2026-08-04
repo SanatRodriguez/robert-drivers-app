@@ -171,7 +171,7 @@ function LocationForm({
           DIRECCIÓN
         </label>
         <AddressAutocomplete
-          value={location.address_text}
+          location={location}
           onChange={setLocation}
           placeholder="Busca tu dirección"
           className="w-full px-4 py-3 rounded-xl bg-bg border border-border text-sm outline-none focus:border-brand"

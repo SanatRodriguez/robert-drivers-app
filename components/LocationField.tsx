@@ -51,7 +51,7 @@ export function LocationField({
       )}
 
       <AddressAutocomplete
-        value={value.address_text}
+        location={value}
         onChange={(loc) => {
           onChange(loc);
           setSaved(false);
