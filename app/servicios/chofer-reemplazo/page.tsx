@@ -52,8 +52,9 @@ export default function ChoferReemplazoPage() {
         serviceName: booking.serviceName,
         ticketCode: booking.ticket_code,
         lines: [
+          { label: "🕐 Cuándo", value: cuandoTexto },
           {
-            label: "📍 Estoy en",
+            label: "📍 Te recojo en",
             value: origen.address_text,
             mapsLink: origen.lat && origen.lng ? buildGoogleMapsLink(origen.lat, origen.lng) : null,
           },
@@ -62,7 +63,6 @@ export default function ChoferReemplazoPage() {
             value: destino.address_text,
             mapsLink: destino.lat && destino.lng ? buildGoogleMapsLink(destino.lat, destino.lng) : null,
           },
-          { label: "🕐 Cuándo", value: cuandoTexto },
         ],
       });
       sendToWhatsAppWindow(waWindow, mensaje);
@@ -81,30 +81,6 @@ export default function ChoferReemplazoPage() {
         submitting={submitting}
         onFinish={handleFinish}
         steps={[
-          {
-            title: "¿Dónde estás ahora?",
-            canAdvance: origen.address_text.trim().length > 0,
-            content: (
-              <LocationField
-                value={origen}
-                onChange={setOrigen}
-                placeholder="Ej: Barranco, restaurante X"
-                excludeAddressText={destino.address_text || undefined}
-              />
-            ),
-          },
-          {
-            title: "¿A dónde vas?",
-            canAdvance: destino.address_text.trim().length > 0,
-            content: (
-              <LocationField
-                value={destino}
-                onChange={setDestino}
-                placeholder="Ej: Surco"
-                excludeAddressText={origen.address_text || undefined}
-              />
-            ),
-          },
           {
             title: "¿Cuándo?",
             canAdvance: !!cuando && (cuando !== "Otro día" || !!fecha) && !!hora,
@@ -136,6 +112,30 @@ export default function ChoferReemplazoPage() {
                   />
                 </div>
               </div>
+            ),
+          },
+          {
+            title: "¿Dónde te recojo?",
+            canAdvance: origen.address_text.trim().length > 0,
+            content: (
+              <LocationField
+                value={origen}
+                onChange={setOrigen}
+                placeholder="Ej: Barranco, restaurante X"
+                excludeAddressText={destino.address_text || undefined}
+              />
+            ),
+          },
+          {
+            title: "¿A dónde vas?",
+            canAdvance: destino.address_text.trim().length > 0,
+            content: (
+              <LocationField
+                value={destino}
+                onChange={setDestino}
+                placeholder="Ej: Surco"
+                excludeAddressText={origen.address_text || undefined}
+              />
             ),
           },
         ]}

@@ -3,8 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StepWizard, PillGroup, TextField } from "@/components/StepWizard";
+import { LocationField } from "@/components/LocationField";
 import { createBooking } from "@/lib/createBooking";
-import { reserveWhatsAppWindow, sendToWhatsAppWindow, buildBookingMessage } from "@/lib/whatsapp";
+import {
+  reserveWhatsAppWindow,
+  sendToWhatsAppWindow,
+  buildBookingMessage,
+  buildGoogleMapsLink,
+} from "@/lib/whatsapp";
+import type { Location } from "@/lib/types";
+
+const EMPTY_LOCATION: Location = { address_text: "", lat: null, lng: null };
 
 export function EventosWizard({
   eventos,
@@ -15,7 +24,7 @@ export function EventosWizard({
   const opciones = [...eventos.map((e) => e.name), "Otro"];
   const [evento, setEvento] = useState("");
   const [eventoOtro, setEventoOtro] = useState("");
-  const [zona, setZona] = useState("");
+  const [zona, setZona] = useState<Location>(EMPTY_LOCATION);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +38,8 @@ export function EventosWizard({
       const booking = await createBooking({
         serviceSlug: "eventos",
         serviceItemId: item?.id || null,
-        formData: { evento: nombreEvento, zona_salida: zona },
+        formData: { evento: nombreEvento },
+        origin: zona.address_text ? zona : null,
       });
       const mensaje = buildBookingMessage({
         clientName: booking.clientName,
@@ -37,7 +47,11 @@ export function EventosWizard({
         ticketCode: booking.ticket_code,
         lines: [
           { label: "🎫 Evento", value: nombreEvento },
-          { label: "📍 Salgo desde", value: zona },
+          {
+            label: "📍 Salgo desde",
+            value: zona.address_text,
+            mapsLink: zona.lat && zona.lng ? buildGoogleMapsLink(zona.lat, zona.lng) : null,
+          },
         ],
       });
       sendToWhatsAppWindow(waWindow, mensaje);
@@ -74,8 +88,10 @@ export function EventosWizard({
           },
           {
             title: "¿De qué zona sales?",
-            canAdvance: zona.trim().length > 0,
-            content: <TextField value={zona} onChange={setZona} placeholder="Ej: San Miguel" />,
+            canAdvance: zona.address_text.trim().length > 0,
+            content: (
+              <LocationField value={zona} onChange={setZona} placeholder="Ej: San Miguel" />
+            ),
           },
         ]}
       />

@@ -16,10 +16,10 @@ export function buildBookingMessage(params: {
   ticketCode: string;
   lines: { label: string; value: string; mapsLink?: string | null }[];
 }) {
-  let msg = `Hola Robert's Drivers 👋\nSoy ${params.clientName}.\nQuiero pedir *${params.serviceName}*.\n🎫 Ticket: ${params.ticketCode}`;
+  let msg = `Hola Robert's Drivers 👋\nSoy ${params.clientName}.\nQuiero pedir *${params.serviceName}*.\n🎫 *Ticket:* ${params.ticketCode}`;
   for (const l of params.lines) {
     if (l.value) {
-      msg += `\n${l.label}: ${l.value}`;
+      msg += `\n*${l.label}:* ${l.value}`;
       if (l.mapsLink) msg += `\n🗺️ ${l.mapsLink}`;
     }
   }
