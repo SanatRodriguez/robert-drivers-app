@@ -56,7 +56,9 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
         steps={[
           {
             title: "¿Qué tienes en mente?",
-            canAdvance: plan.trim().length > 0 && (!paquetes.length || !!paqueteId),
+            canAdvance: paquetes.length
+              ? plan.trim().length > 0 || !!paqueteId
+              : plan.trim().length > 0,
             content: (
               <div className="space-y-4">
                 <TextField
@@ -67,7 +69,7 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
                 {paquetes.length > 0 && (
                   <div>
                     <p className="text-[10px] font-mono text-muted mb-2 tracking-wide">
-                      ¿QUÉ PAQUETE TE INTERESA?
+                      O ELIGE UN PAQUETE
                     </p>
                     <ItemGallery
                       items={paquetes}

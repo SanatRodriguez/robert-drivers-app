@@ -46,6 +46,12 @@ export default async function AdminPage() {
         >
           ☀️ Full day
         </Link>
+        <Link
+          href="/admin/conductores"
+          className="text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+        >
+          🧑‍✈️ Conductores
+        </Link>
       </div>
 
       <AdminBookingsList initialBookings={(bookings as any) || []} />
