@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AdminBookingsList } from "@/components/AdminBookingsList";
+import { PushNotificationButton } from "@/components/PushNotificationButton";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,7 @@ export default async function AdminPage() {
         >
           🧑‍✈️ Conductores
         </Link>
+        <PushNotificationButton adminId={user.id} />
       </div>
 
       <AdminBookingsList initialBookings={(bookings as any) || []} drivers={drivers || []} />

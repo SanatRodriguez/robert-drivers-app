@@ -368,3 +368,60 @@ create policy "service-images: solo admin actualiza"
 create policy "service-images: solo admin borra"
   on storage.objects for delete
   using (bucket_id = 'service-images' and public.is_admin());
+
+-- ============================================================
+-- Notificaciones push al admin cuando llega una reserva nueva.
+-- Llaves VAPID generadas aparte, guardadas en el Edge Function
+-- "notify-new-booking" (Supabase no permite ver secrets de funciones
+-- desde aqui, asi que no se repiten en este archivo).
+-- ============================================================
+create extension if not exists pg_net;
+
+create table public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  admin_id uuid not null references public.profiles(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.push_subscriptions enable row level security;
+
+create policy "push_subscriptions: admin gestiona las propias"
+  on public.push_subscriptions for all
+  using (admin_id = auth.uid() and public.is_admin())
+  with check (admin_id = auth.uid() and public.is_admin());
+
+-- Dispara el Edge Function via pg_net cada vez que se crea una reserva.
+create or replace function public.notify_new_booking()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_service_name text;
+  v_client_name text;
+begin
+  select name into v_service_name from public.services where id = new.service_id;
+  select full_name into v_client_name from public.profiles where id = new.client_id;
+
+  perform net.http_post(
+    url := 'https://ovsnugnxayytlomrvyvz.supabase.co/functions/v1/notify-new-booking',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || 'TU_ANON_KEY_AQUI' -- ver .env.local
+    ),
+    body := jsonb_build_object(
+      'ticket_code', new.ticket_code,
+      'service_name', v_service_name,
+      'client_name', v_client_name
+    )
+  );
+  return new;
+end;
+$$;
+
+create trigger trg_notify_new_booking
+  after insert on public.bookings
+  for each row execute procedure public.notify_new_booking();
