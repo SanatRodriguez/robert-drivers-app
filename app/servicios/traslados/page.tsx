@@ -9,7 +9,7 @@ import {
   reserveWhatsAppWindow,
   sendToWhatsAppWindow,
   buildBookingMessage,
-  buildWazeLink,
+  buildGoogleMapsLink,
 } from "@/lib/whatsapp";
 import type { Location } from "@/lib/types";
 
@@ -56,12 +56,12 @@ export default function TrasladosPage() {
           {
             label: "📍 Desde",
             value: origen.address_text,
-            wazeLink: origen.lat && origen.lng ? buildWazeLink(origen.lat, origen.lng) : null,
+            mapsLink: origen.lat && origen.lng ? buildGoogleMapsLink(origen.lat, origen.lng) : null,
           },
           {
             label: "🏁 Hasta",
             value: destino.address_text,
-            wazeLink: destino.lat && destino.lng ? buildWazeLink(destino.lat, destino.lng) : null,
+            mapsLink: destino.lat && destino.lng ? buildGoogleMapsLink(destino.lat, destino.lng) : null,
           },
         ],
       });
@@ -122,6 +122,7 @@ export default function TrasladosPage() {
                 value={origen}
                 onChange={setOrigen}
                 placeholder="Ej: Miraflores, Av. Larco 123"
+                excludeAddressText={destino.address_text || undefined}
               />
             ),
           },
@@ -129,7 +130,12 @@ export default function TrasladosPage() {
             title: "¿A dónde vas?",
             canAdvance: destino.address_text.trim().length > 0,
             content: (
-              <LocationField value={destino} onChange={setDestino} placeholder="Ej: Playa Asia" />
+              <LocationField
+                value={destino}
+                onChange={setDestino}
+                placeholder="Ej: Playa Asia"
+                excludeAddressText={origen.address_text || undefined}
+              />
             ),
           },
         ]}

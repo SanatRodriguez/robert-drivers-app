@@ -34,10 +34,16 @@ export function AddressAutocomplete({
   const mapDivRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const locationRef = useRef(location);
   locationRef.current = location;
+
+  // Mueve/crea el pin en el mapa. No emite onChange — solo sincroniza lo visual.
+  const movePinRef = useRef<(lat: number, lng: number) => void>();
+  // Se llama cuando el usuario mueve el pin a mano (drag o click) — sí emite onChange.
+  const handlePinInteractionRef = useRef<(lat: number, lng: number) => void>();
 
   useEffect(() => {
     let autocompleteListener: google.maps.MapsEventListener | undefined;
@@ -70,35 +76,44 @@ export function AddressAutocomplete({
       });
       mapRef.current = map;
 
-      const placeMarker = (pos: google.maps.LatLng | google.maps.LatLngLiteral) => {
-        if (!markerRef.current) {
-          markerRef.current = new g.maps.Marker({ map, position: pos, draggable: true });
-          markerRef.current.addListener("dragend", () => {
-            const p = markerRef.current!.getPosition();
-            if (!p) return;
-            onChangeRef.current({
-              address_text: locationRef.current.address_text,
-              lat: p.lat(),
-              lng: p.lng(),
-            });
-          });
-        } else {
+      const movePin = (lat: number, lng: number) => {
+        const pos = { lat, lng };
+        map.panTo(pos);
+        if ((map.getZoom() ?? 0) < 15) map.setZoom(16);
+        if (markerRef.current) {
           markerRef.current.setPosition(pos);
+        } else {
+          const marker = new g.maps.Marker({ map, position: pos, draggable: true });
+          marker.addListener("dragend", () => {
+            const p = marker.getPosition();
+            if (p) handlePinInteractionRef.current?.(p.lat(), p.lng());
+          });
+          markerRef.current = marker;
         }
       };
+      movePinRef.current = movePin;
 
-      if (start.lat && start.lng) {
-        placeMarker({ lat: start.lat, lng: start.lng });
-      }
+      // El pin se movió a mano (drag o click en el mapa): la dirección escrita ya
+      // no corresponde al punto exacto, así que se reemplaza con geocodificación
+      // inversa. Si falla, se deja un texto con las coordenadas para no bloquear
+      // el flujo (el campo nunca debe quedar vacío).
+      handlePinInteractionRef.current = (lat, lng) => {
+        movePin(lat, lng);
+        if (!geocoderRef.current) geocoderRef.current = new g.maps.Geocoder();
+        geocoderRef.current.geocode({ location: { lat, lng } }, (results, status) => {
+          const address_text =
+            status === "OK" && results?.[0]
+              ? results[0].formatted_address
+              : `Ubicación seleccionada (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+          onChangeRef.current({ address_text, lat, lng });
+        });
+      };
+
+      if (start.lat && start.lng) movePin(start.lat, start.lng);
 
       mapClickListener = map.addListener("click", (e: google.maps.MapMouseEvent) => {
         if (!e.latLng) return;
-        placeMarker(e.latLng);
-        onChangeRef.current({
-          address_text: locationRef.current.address_text,
-          lat: e.latLng.lat(),
-          lng: e.latLng.lng(),
-        });
+        handlePinInteractionRef.current?.(e.latLng.lat(), e.latLng.lng());
       });
     });
 
@@ -117,27 +132,11 @@ export function AddressAutocomplete({
     }
   }, [location.address_text]);
 
-  // Sincroniza el mapa/pin cuando las coordenadas cambian desde afuera.
+  // Sincroniza el mapa/pin cuando las coordenadas cambian desde afuera (autocompletado,
+  // dirección guardada, etc.) — no dispara geocodificación, ese texto ya es correcto.
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || location.lat === null || location.lng === null) return;
-    const pos = { lat: location.lat, lng: location.lng };
-    map.panTo(pos);
-    map.setZoom(16);
-    if (markerRef.current) {
-      markerRef.current.setPosition(pos);
-    } else if (typeof google !== "undefined") {
-      markerRef.current = new google.maps.Marker({ map, position: pos, draggable: true });
-      markerRef.current.addListener("dragend", () => {
-        const p = markerRef.current!.getPosition();
-        if (!p) return;
-        onChangeRef.current({
-          address_text: locationRef.current.address_text,
-          lat: p.lat(),
-          lng: p.lng(),
-        });
-      });
-    }
+    if (location.lat === null || location.lng === null) return;
+    movePinRef.current?.(location.lat, location.lng);
   }, [location.lat, location.lng]);
 
   return (
@@ -157,7 +156,7 @@ export function AddressAutocomplete({
       />
       <div
         ref={mapDivRef}
-        className="w-full h-44 rounded-xl border border-border mt-2 overflow-hidden bg-bg-elevated"
+        className="w-full h-80 rounded-xl border border-border mt-2 overflow-hidden bg-bg-elevated"
       />
       {location.lat && location.lng && (
         <p className="text-[11px] text-muted mt-1.5">

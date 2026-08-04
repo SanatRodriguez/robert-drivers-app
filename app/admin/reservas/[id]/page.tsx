@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminBookingActions } from "@/components/AdminBookingActions";
-import { buildWazeLink } from "@/lib/whatsapp";
+import { buildGoogleMapsLink } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
@@ -70,12 +70,12 @@ export default async function AdminBookingDetailPage({
               {origin.address_text}
               {origin.lat && origin.lng && (
                 <a
-                  href={buildWazeLink(origin.lat, origin.lng)}
+                  href={buildGoogleMapsLink(origin.lat, origin.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block text-xs text-brand font-semibold mt-0.5"
                 >
-                  🚗 Abrir en Waze
+                  🗺️ Ver en el mapa
                 </a>
               )}
             </span>
@@ -88,12 +88,12 @@ export default async function AdminBookingDetailPage({
               {destination.address_text}
               {destination.lat && destination.lng && (
                 <a
-                  href={buildWazeLink(destination.lat, destination.lng)}
+                  href={buildGoogleMapsLink(destination.lat, destination.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block text-xs text-brand font-semibold mt-0.5"
                 >
-                  🚗 Abrir en Waze
+                  🗺️ Ver en el mapa
                 </a>
               )}
             </span>

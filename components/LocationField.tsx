@@ -9,10 +9,14 @@ export function LocationField({
   value,
   onChange,
   placeholder,
+  excludeAddressText,
 }: {
   value: Location;
   onChange: (v: Location) => void;
   placeholder?: string;
+  // Oculta de las sugerencias la dirección guardada ya elegida en el otro campo
+  // (ej: si origen ya es "Casa", no tiene sentido ofrecerla también como destino).
+  excludeAddressText?: string;
 }) {
   const [locations, setLocations] = useState<SavedLocation[]>([]);
   const [showSave, setShowSave] = useState(false);
@@ -31,11 +35,15 @@ export function LocationField({
     fetchMyLocations().then(setLocations);
   }
 
+  const visibleLocations = excludeAddressText
+    ? locations.filter((loc) => loc.address_text !== excludeAddressText)
+    : locations;
+
   return (
     <div>
-      {locations.length > 0 && (
+      {visibleLocations.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
-          {locations.map((loc) => (
+          {visibleLocations.map((loc) => (
             <button
               key={loc.id}
               type="button"

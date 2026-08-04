@@ -9,7 +9,7 @@ import {
   reserveWhatsAppWindow,
   sendToWhatsAppWindow,
   buildBookingMessage,
-  buildWazeLink,
+  buildGoogleMapsLink,
 } from "@/lib/whatsapp";
 import type { Location } from "@/lib/types";
 
@@ -55,12 +55,12 @@ export default function ChoferReemplazoPage() {
           {
             label: "📍 Estoy en",
             value: origen.address_text,
-            wazeLink: origen.lat && origen.lng ? buildWazeLink(origen.lat, origen.lng) : null,
+            mapsLink: origen.lat && origen.lng ? buildGoogleMapsLink(origen.lat, origen.lng) : null,
           },
           {
             label: "🏁 Voy a",
             value: destino.address_text,
-            wazeLink: destino.lat && destino.lng ? buildWazeLink(destino.lat, destino.lng) : null,
+            mapsLink: destino.lat && destino.lng ? buildGoogleMapsLink(destino.lat, destino.lng) : null,
           },
           { label: "🕐 Cuándo", value: cuandoTexto },
         ],
@@ -89,13 +89,21 @@ export default function ChoferReemplazoPage() {
                 value={origen}
                 onChange={setOrigen}
                 placeholder="Ej: Barranco, restaurante X"
+                excludeAddressText={destino.address_text || undefined}
               />
             ),
           },
           {
             title: "¿A dónde vas?",
             canAdvance: destino.address_text.trim().length > 0,
-            content: <LocationField value={destino} onChange={setDestino} placeholder="Ej: Surco" />,
+            content: (
+              <LocationField
+                value={destino}
+                onChange={setDestino}
+                placeholder="Ej: Surco"
+                excludeAddressText={origen.address_text || undefined}
+              />
+            ),
           },
           {
             title: "¿Cuándo?",
