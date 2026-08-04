@@ -99,11 +99,11 @@ export default async function HomePage() {
       </div>
 
       <div className="mt-auto pt-8 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-brand flex items-center justify-center font-extrabold text-sm">
+        <div className="w-9 h-9 rounded-full bg-brand flex items-center justify-center font-extrabold text-sm text-white">
           R
         </div>
         <p className="text-xs text-muted leading-tight">
-          <b className="text-white">Robert</b> — 20 años en el rubro. Coordinación
+          <b className="text-ink">Robert</b> — 20 años en el rubro. Coordinación
           directa por WhatsApp.
         </p>
       </div>

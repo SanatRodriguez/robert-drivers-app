@@ -119,7 +119,7 @@ export default async function BookingDetailPage({
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-5 w-full py-3.5 rounded-xl bg-whatsapp text-[#04310f] font-bold text-sm"
+        className="mt-5 w-full py-3.5 rounded-xl bg-[#25D366] text-[#04310f] font-bold text-sm"
       >
         💬 Abrir WhatsApp de nuevo
       </a>

@@ -19,7 +19,7 @@ const STATUS_COLOR: Record<string, string> = {
   confirmed: "text-brand",
   assigned: "text-whatsapp",
   completed: "text-whatsapp",
-  cancelled: "text-red-400",
+  cancelled: "text-danger",
 };
 
 export default async function MisReservasPage() {

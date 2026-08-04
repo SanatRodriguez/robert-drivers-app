@@ -60,7 +60,7 @@ export function StepWizard({
         <button
           disabled={current.canAdvance === false || submitting}
           onClick={() => (isLast ? onFinish() : setStep((s) => s + 1))}
-          className="flex-1 py-3.5 rounded-xl bg-brand font-bold text-sm disabled:opacity-40"
+          className="flex-1 py-3.5 rounded-xl bg-brand text-white font-bold text-sm disabled:opacity-40"
         >
           {isLast ? (submitting ? "Enviando..." : finishLabel) : "Siguiente →"}
         </button>
@@ -94,7 +94,7 @@ export function PillGroup({
           onClick={() => onChange(opt)}
           className={`px-4 py-2.5 rounded-full text-sm border ${
             value === opt
-              ? "bg-brand border-brand font-bold"
+              ? "bg-brand border-brand text-white font-bold"
               : "bg-bg-elevated border-border"
           }`}
         >

@@ -2,7 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #0a0f1c;
+  --color-bg-elevated: #111a2e;
+  --color-bg-card: #16213a;
+  --color-border: #1f2e4d;
+  --color-muted: #8993ad;
+  --color-ink: #f2f5fc;
+  --color-danger: #f87171;
+  --color-whatsapp-text: #25d366;
+}
+
+/* La app sigue el modo claro/oscuro del sistema del cliente — sin boton manual. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg: #f3f5fa;
+    --color-bg-elevated: #ffffff;
+    --color-bg-card: #edf0f7;
+    --color-border: #dce1ee;
+    --color-muted: #5b6478;
+    --color-ink: #10151f;
+    --color-danger: #dc2626;
+    --color-whatsapp-text: #17864b;
+  }
+}
+
 body {
-  background-color: #0a0f1c;
-  color: #f2f5fc;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
 }

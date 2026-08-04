@@ -67,12 +67,15 @@ export function AddressAutocomplete({
       });
 
       const start = locationRef.current;
+      const prefersLight =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: light)").matches;
       const map = new g.maps.Map(mapDivRef.current, {
         center: start.lat && start.lng ? { lat: start.lat, lng: start.lng } : LIMA_CENTER,
         zoom: start.lat && start.lng ? 16 : 12,
         disableDefaultUI: true,
         zoomControl: true,
-        styles: DARK_MAP_STYLE,
+        styles: prefersLight ? [] : DARK_MAP_STYLE,
       });
       mapRef.current = map;
 

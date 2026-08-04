@@ -98,7 +98,7 @@ export function LocationManager() {
                     await deleteLocation(loc.id);
                     await refresh();
                   }}
-                  className="text-xs text-red-400 font-semibold"
+                  className="text-xs text-danger font-semibold"
                 >
                   Eliminar
                 </button>
@@ -193,7 +193,7 @@ function LocationForm({
             await onSubmit(label.trim(), location);
             setSaving(false);
           }}
-          className="flex-1 py-2.5 rounded-xl bg-brand text-xs font-bold disabled:opacity-40"
+          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-xs font-bold disabled:opacity-40"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>

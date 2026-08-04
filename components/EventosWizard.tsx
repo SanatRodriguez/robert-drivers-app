@@ -95,7 +95,7 @@ export function EventosWizard({
           },
         ]}
       />
-      {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
+      {error && <p className="text-sm text-danger mt-3">{error}</p>}
     </div>
   );
 }

@@ -7,12 +7,16 @@ const config: Config = {
       colors: {
         brand: "#1851DD",
         "brand-dark": "#123EA8",
-        bg: "#0A0F1C",
-        "bg-elevated": "#111A2E",
-        "bg-card": "#16213A",
-        border: "#1F2E4D",
-        muted: "#8993AD",
-        whatsapp: "#25D366",
+        bg: "var(--color-bg)",
+        "bg-elevated": "var(--color-bg-elevated)",
+        "bg-card": "var(--color-bg-card)",
+        border: "var(--color-border)",
+        muted: "var(--color-muted)",
+        ink: "var(--color-ink)",
+        danger: "var(--color-danger)",
+        // texto de estado (ej: "Completada") — el boton fijo de WhatsApp usa su
+        // propio verde fijo, no este token, porque su fondo no cambia con el tema.
+        whatsapp: "var(--color-whatsapp-text)",
       },
     },
   },

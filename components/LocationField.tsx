@@ -89,7 +89,7 @@ export function LocationField({
           <button
             type="button"
             onClick={handleSave}
-            className="px-3 py-2 rounded-lg bg-brand text-xs font-bold shrink-0"
+            className="px-3 py-2 rounded-lg bg-brand text-white text-xs font-bold shrink-0"
           >
             Guardar
           </button>

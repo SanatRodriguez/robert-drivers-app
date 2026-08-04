@@ -107,7 +107,7 @@ export function AdminBookingActions({
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full py-3.5 rounded-xl bg-brand font-bold text-sm disabled:opacity-60"
+        className="w-full py-3.5 rounded-xl bg-brand text-white font-bold text-sm disabled:opacity-60"
       >
         {saving ? "Guardando..." : saved ? "✓ Guardado" : "Guardar cambios"}
       </button>
