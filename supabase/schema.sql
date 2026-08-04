@@ -264,3 +264,107 @@ insert into public.service_items (service_id, name, price, event_date)
 -- update public.profiles set role = 'admin' where id =
 --   (select id from auth.users where email = 'TU_CORREO_AQUI');
 -- ============================================================
+
+-- ============================================================
+-- MIGRACIÓN — galería (Eventos/Full day), servicio bloqueado y
+-- bloqueo de login por intentos fallidos. Ya corrida en Supabase.
+-- ============================================================
+alter table public.service_items add column if not exists image_url text;
+alter table public.service_items add column if not exists location text;
+
+alter table public.services add column if not exists coming_soon boolean not null default false;
+
+insert into public.services (name, slug, description, icon, is_active, sort_order, coming_soon)
+select 'Traslado Exclusivo', 'traslado-exclusivo', 'Servicio premium — disponible pronto.', '⭐', true, 5, true
+where not exists (select 1 from public.services where slug = 'traslado-exclusivo');
+
+-- Bloqueo de cuenta tras 5 intentos fallidos de login, por 1 hora.
+-- Solo se toca via las funciones SECURITY DEFINER de abajo — sin RLS
+-- de acceso directo para clientes.
+create table if not exists public.login_attempts (
+  email text primary key,
+  failed_count int not null default 0,
+  locked_until timestamptz
+);
+alter table public.login_attempts enable row level security;
+
+create or replace function public.check_login_lock(p_email text)
+returns timestamptz
+language sql
+security definer
+set search_path = public
+as $$
+  select locked_until from public.login_attempts
+  where email = lower(p_email) and locked_until > now();
+$$;
+
+create or replace function public.register_failed_login(p_email text)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_count int;
+  v_locked_until timestamptz;
+begin
+  insert into public.login_attempts (email, failed_count)
+  values (lower(p_email), 1)
+  on conflict (email) do update
+    set failed_count = case
+          when public.login_attempts.locked_until is not null and public.login_attempts.locked_until <= now()
+            then 1
+          else public.login_attempts.failed_count + 1
+        end,
+        locked_until = case
+          when public.login_attempts.locked_until is not null and public.login_attempts.locked_until <= now()
+            then null
+          else public.login_attempts.locked_until
+        end
+  returning failed_count into v_count;
+
+  if v_count >= 5 then
+    update public.login_attempts
+      set locked_until = now() + interval '1 hour'
+      where email = lower(p_email)
+      returning locked_until into v_locked_until;
+  end if;
+
+  return v_locked_until;
+end;
+$$;
+
+create or replace function public.clear_login_attempts(p_email text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  delete from public.login_attempts where email = lower(p_email);
+$$;
+
+grant execute on function public.check_login_lock(text) to anon, authenticated;
+grant execute on function public.register_failed_login(text) to anon, authenticated;
+grant execute on function public.clear_login_attempts(text) to anon, authenticated;
+
+-- Bucket de Storage para las fotos de eventos/paquetes (lectura pública,
+-- escritura solo admin).
+insert into storage.buckets (id, name, public)
+select 'service-images', 'service-images', true
+where not exists (select 1 from storage.buckets where id = 'service-images');
+
+create policy "service-images: lectura publica"
+  on storage.objects for select
+  using (bucket_id = 'service-images');
+
+create policy "service-images: solo admin escribe"
+  on storage.objects for insert
+  with check (bucket_id = 'service-images' and public.is_admin());
+
+create policy "service-images: solo admin actualiza"
+  on storage.objects for update
+  using (bucket_id = 'service-images' and public.is_admin());
+
+create policy "service-images: solo admin borra"
+  on storage.objects for delete
+  using (bucket_id = 'service-images' and public.is_admin());
