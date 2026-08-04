@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { fetchMyLocations, saveLocation, type SavedLocation } from "@/lib/locations";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
+import type { Location } from "@/lib/types";
 
 export function LocationField({
   value,
   onChange,
   placeholder,
 }: {
-  value: string;
-  onChange: (v: string) => void;
+  value: Location;
+  onChange: (v: Location) => void;
   placeholder?: string;
 }) {
   const [locations, setLocations] = useState<SavedLocation[]>([]);
@@ -22,8 +24,8 @@ export function LocationField({
   }, []);
 
   async function handleSave() {
-    if (!value.trim() || !saveLabel.trim()) return;
-    await saveLocation(saveLabel.trim(), value.trim());
+    if (!value.address_text.trim() || !saveLabel.trim()) return;
+    await saveLocation(saveLabel.trim(), value);
     setSaved(true);
     setShowSave(false);
     fetchMyLocations().then(setLocations);
@@ -37,7 +39,9 @@ export function LocationField({
             <button
               key={loc.id}
               type="button"
-              onClick={() => onChange(loc.address_text)}
+              onClick={() =>
+                onChange({ address_text: loc.address_text, lat: loc.lat, lng: loc.lng })
+              }
               className="px-3 py-1.5 rounded-full text-xs border border-border bg-bg-elevated text-muted"
             >
               📍 {loc.label}
@@ -46,18 +50,16 @@ export function LocationField({
         </div>
       )}
 
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
+      <AddressAutocomplete
+        value={value.address_text}
+        onChange={(loc) => {
+          onChange(loc);
           setSaved(false);
         }}
         placeholder={placeholder}
-        className="w-full px-4 py-3.5 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
       />
 
-      {value.trim().length > 0 && !showSave && !saved && (
+      {value.address_text.trim().length > 0 && !showSave && !saved && (
         <button
           type="button"
           onClick={() => setShowSave(true)}

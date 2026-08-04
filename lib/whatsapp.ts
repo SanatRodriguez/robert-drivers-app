@@ -4,15 +4,24 @@ export function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+// Enlace universal de Waze — si el conductor tiene la app instalada la abre
+// directo ahí navegando; si no, cae a la versión web.
+export function buildWazeLink(lat: number, lng: number) {
+  return `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+}
+
 export function buildBookingMessage(params: {
   clientName: string;
   serviceName: string;
   ticketCode: string;
-  lines: { label: string; value: string }[];
+  lines: { label: string; value: string; wazeLink?: string | null }[];
 }) {
   let msg = `Hola Robert's Drivers 👋\nSoy ${params.clientName}.\nQuiero pedir *${params.serviceName}*.\n🎫 Ticket: ${params.ticketCode}`;
   for (const l of params.lines) {
-    if (l.value) msg += `\n${l.label}: ${l.value}`;
+    if (l.value) {
+      msg += `\n${l.label}: ${l.value}`;
+      if (l.wazeLink) msg += `\n🚗 Waze: ${l.wazeLink}`;
+    }
   }
   return msg;
 }

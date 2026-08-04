@@ -32,6 +32,7 @@ export async function middleware(request: NextRequest) {
 
   const isProtected = request.nextUrl.pathname.startsWith("/servicios") ||
     request.nextUrl.pathname.startsWith("/mis-reservas") ||
+    request.nextUrl.pathname.startsWith("/mis-direcciones") ||
     request.nextUrl.pathname.startsWith("/admin");
 
   if (isProtected && !user) {

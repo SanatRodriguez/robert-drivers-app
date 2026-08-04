@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { StepWizard, PillGroup, TextField } from "@/components/StepWizard";
 import { LocationField } from "@/components/LocationField";
 import { createBooking } from "@/lib/createBooking";
-import { reserveWhatsAppWindow, sendToWhatsAppWindow, buildBookingMessage } from "@/lib/whatsapp";
+import {
+  reserveWhatsAppWindow,
+  sendToWhatsAppWindow,
+  buildBookingMessage,
+  buildWazeLink,
+} from "@/lib/whatsapp";
+import type { Location } from "@/lib/types";
+
+const EMPTY_LOCATION: Location = { address_text: "", lat: null, lng: null };
 
 const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -21,8 +29,8 @@ export default function TrasladosPage() {
   const [cuando, setCuando] = useState("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
-  const [origen, setOrigen] = useState("");
-  const [destino, setDestino] = useState("");
+  const [origen, setOrigen] = useState<Location>(EMPTY_LOCATION);
+  const [destino, setDestino] = useState<Location>(EMPTY_LOCATION);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +44,8 @@ export default function TrasladosPage() {
       const booking = await createBooking({
         serviceSlug: "traslados",
         formData: { cuando: cuandoTexto, hora_exacta: hora },
-        origin: origen ? { address_text: origen, lat: null, lng: null } : null,
-        destination: destino ? { address_text: destino, lat: null, lng: null } : null,
+        origin: origen.address_text ? origen : null,
+        destination: destino.address_text ? destino : null,
       });
       const mensaje = buildBookingMessage({
         clientName: booking.clientName,
@@ -45,8 +53,16 @@ export default function TrasladosPage() {
         ticketCode: booking.ticket_code,
         lines: [
           { label: "🕐 Cuándo", value: cuandoTexto },
-          { label: "📍 Desde", value: origen },
-          { label: "🏁 Hasta", value: destino },
+          {
+            label: "📍 Desde",
+            value: origen.address_text,
+            wazeLink: origen.lat && origen.lng ? buildWazeLink(origen.lat, origen.lng) : null,
+          },
+          {
+            label: "🏁 Hasta",
+            value: destino.address_text,
+            wazeLink: destino.lat && destino.lng ? buildWazeLink(destino.lat, destino.lng) : null,
+          },
         ],
       });
       sendToWhatsAppWindow(waWindow, mensaje);
@@ -100,7 +116,7 @@ export default function TrasladosPage() {
           },
           {
             title: "¿De dónde sales?",
-            canAdvance: origen.trim().length > 0,
+            canAdvance: origen.address_text.trim().length > 0,
             content: (
               <LocationField
                 value={origen}
@@ -111,7 +127,7 @@ export default function TrasladosPage() {
           },
           {
             title: "¿A dónde vas?",
-            canAdvance: destino.trim().length > 0,
+            canAdvance: destino.address_text.trim().length > 0,
             content: (
               <LocationField value={destino} onChange={setDestino} placeholder="Ej: Playa Asia" />
             ),

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminBookingActions } from "@/components/AdminBookingActions";
+import { buildWazeLink } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
@@ -37,8 +38,12 @@ export default async function AdminBookingDetailPage({
     .eq("is_active", true);
 
   const formData = (booking.form_data || {}) as Record<string, string>;
-  const origin = booking.origin_location as { address_text: string } | null;
-  const destination = booking.destination_location as { address_text: string } | null;
+  const origin = booking.origin_location as
+    | { address_text: string; lat: number | null; lng: number | null }
+    | null;
+  const destination = booking.destination_location as
+    | { address_text: string; lat: number | null; lng: number | null }
+    | null;
 
   return (
     <div className="flex-1 flex flex-col py-4">
@@ -61,13 +66,37 @@ export default async function AdminBookingDetailPage({
         {origin?.address_text && (
           <div className="flex justify-between gap-3">
             <span className="text-muted">Origen</span>
-            <span className="text-right">{origin.address_text}</span>
+            <span className="text-right">
+              {origin.address_text}
+              {origin.lat && origin.lng && (
+                <a
+                  href={buildWazeLink(origin.lat, origin.lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-brand font-semibold mt-0.5"
+                >
+                  🚗 Abrir en Waze
+                </a>
+              )}
+            </span>
           </div>
         )}
         {destination?.address_text && (
           <div className="flex justify-between gap-3">
             <span className="text-muted">Destino</span>
-            <span className="text-right">{destination.address_text}</span>
+            <span className="text-right">
+              {destination.address_text}
+              {destination.lat && destination.lng && (
+                <a
+                  href={buildWazeLink(destination.lat, destination.lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-brand font-semibold mt-0.5"
+                >
+                  🚗 Abrir en Waze
+                </a>
+              )}
+            </span>
           </div>
         )}
         {booking.scheduled_for && (

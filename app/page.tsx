@@ -39,14 +39,24 @@ export default async function HomePage() {
           </p>
         )}
         <h1 className="text-2xl font-extrabold">¿Qué servicio quieres pedir?</h1>
-        {isAdmin && (
-          <Link
-            href="/admin"
-            className="inline-block mt-3 text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
-          >
-            🛠️ Panel de administración
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {user && (
+            <Link
+              href="/mis-direcciones"
+              className="inline-block text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+            >
+              📍 Mis direcciones
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="inline-block text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+            >
+              🛠️ Panel de administración
+            </Link>
+          )}
+        </div>
       </header>
 
       <div className="flex flex-col gap-3 mt-6">

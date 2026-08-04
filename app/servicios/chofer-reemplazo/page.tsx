@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { StepWizard, PillGroup, TextField } from "@/components/StepWizard";
 import { LocationField } from "@/components/LocationField";
 import { createBooking } from "@/lib/createBooking";
-import { reserveWhatsAppWindow, sendToWhatsAppWindow, buildBookingMessage } from "@/lib/whatsapp";
+import {
+  reserveWhatsAppWindow,
+  sendToWhatsAppWindow,
+  buildBookingMessage,
+  buildWazeLink,
+} from "@/lib/whatsapp";
+import type { Location } from "@/lib/types";
+
+const EMPTY_LOCATION: Location = { address_text: "", lat: null, lng: null };
 
 const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
@@ -18,8 +26,8 @@ function mananaLabel() {
 export default function ChoferReemplazoPage() {
   const router = useRouter();
   const cuandoOpciones = ["Hoy", mananaLabel(), "Otro día"];
-  const [origen, setOrigen] = useState("");
-  const [destino, setDestino] = useState("");
+  const [origen, setOrigen] = useState<Location>(EMPTY_LOCATION);
+  const [destino, setDestino] = useState<Location>(EMPTY_LOCATION);
   const [cuando, setCuando] = useState("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
@@ -36,16 +44,24 @@ export default function ChoferReemplazoPage() {
       const booking = await createBooking({
         serviceSlug: "chofer-reemplazo",
         formData: { cuando: cuandoTexto },
-        origin: origen ? { address_text: origen, lat: null, lng: null } : null,
-        destination: destino ? { address_text: destino, lat: null, lng: null } : null,
+        origin: origen.address_text ? origen : null,
+        destination: destino.address_text ? destino : null,
       });
       const mensaje = buildBookingMessage({
         clientName: booking.clientName,
         serviceName: booking.serviceName,
         ticketCode: booking.ticket_code,
         lines: [
-          { label: "📍 Estoy en", value: origen },
-          { label: "🏁 Voy a", value: destino },
+          {
+            label: "📍 Estoy en",
+            value: origen.address_text,
+            wazeLink: origen.lat && origen.lng ? buildWazeLink(origen.lat, origen.lng) : null,
+          },
+          {
+            label: "🏁 Voy a",
+            value: destino.address_text,
+            wazeLink: destino.lat && destino.lng ? buildWazeLink(destino.lat, destino.lng) : null,
+          },
           { label: "🕐 Cuándo", value: cuandoTexto },
         ],
       });
@@ -67,7 +83,7 @@ export default function ChoferReemplazoPage() {
         steps={[
           {
             title: "¿Dónde estás ahora?",
-            canAdvance: origen.trim().length > 0,
+            canAdvance: origen.address_text.trim().length > 0,
             content: (
               <LocationField
                 value={origen}
@@ -78,7 +94,7 @@ export default function ChoferReemplazoPage() {
           },
           {
             title: "¿A dónde vas?",
-            canAdvance: destino.trim().length > 0,
+            canAdvance: destino.address_text.trim().length > 0,
             content: <LocationField value={destino} onChange={setDestino} placeholder="Ej: Surco" />,
           },
           {

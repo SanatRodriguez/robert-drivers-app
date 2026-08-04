@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { buildWhatsAppUrl, buildBookingMessage } from "@/lib/whatsapp";
+import { buildWhatsAppUrl, buildBookingMessage, buildWazeLink } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +40,12 @@ export default async function BookingDetailPage({
   }
 
   const formData = (booking.form_data || {}) as Record<string, string>;
+  const origin = booking.origin_location as
+    | { address_text: string; lat: number | null; lng: number | null }
+    | null;
+  const destination = booking.destination_location as
+    | { address_text: string; lat: number | null; lng: number | null }
+    | null;
   const waMessage = buildBookingMessage({
     clientName,
     serviceName: booking.services?.name || "",
@@ -71,6 +77,42 @@ export default async function BookingDetailPage({
           <span className="text-xs font-mono text-muted">ESTADO</span>
           <span className="text-sm font-semibold">{STATUS_LABEL[booking.status]}</span>
         </div>
+        {origin?.address_text && (
+          <div className="flex justify-between items-start gap-3">
+            <span className="text-xs font-mono text-muted shrink-0">ORIGEN</span>
+            <span className="text-sm text-right">
+              {origin.address_text}
+              {origin.lat && origin.lng && (
+                <a
+                  href={buildWazeLink(origin.lat, origin.lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-brand font-semibold mt-0.5"
+                >
+                  🚗 Abrir en Waze
+                </a>
+              )}
+            </span>
+          </div>
+        )}
+        {destination?.address_text && (
+          <div className="flex justify-between items-start gap-3">
+            <span className="text-xs font-mono text-muted shrink-0">DESTINO</span>
+            <span className="text-sm text-right">
+              {destination.address_text}
+              {destination.lat && destination.lng && (
+                <a
+                  href={buildWazeLink(destination.lat, destination.lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-brand font-semibold mt-0.5"
+                >
+                  🚗 Abrir en Waze
+                </a>
+              )}
+            </span>
+          </div>
+        )}
       </div>
 
       <a
