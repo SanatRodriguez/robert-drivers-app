@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "@/components/LogoutButton";
 import type { Service } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -30,20 +29,18 @@ export default async function HomePage() {
     .returns<Service[]>();
 
   let firstName = "";
-  let isAdmin = false;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("full_name, role")
+      .select("full_name")
       .eq("id", user.id)
       .single();
     firstName = profile?.full_name?.split(" ")[0] || "";
-    isAdmin = profile?.role === "admin";
   }
 
   return (
     <div className="flex-1 flex flex-col">
-      <header className="pt-4 pb-2">
+      <header className="pt-2 pb-2">
         {user ? (
           <p className="text-2xl font-extrabold mb-1">
             {greeting()}, {firstName || "de nuevo"} 👋
@@ -54,24 +51,6 @@ export default async function HomePage() {
           </p>
         )}
         <h1 className="text-base font-semibold text-muted">¿Qué servicio quieres pedir?</h1>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {user && (
-            <Link
-              href="/mis-direcciones"
-              className="inline-block text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
-            >
-              📍 Mis direcciones
-            </Link>
-          )}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="inline-block text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
-            >
-              🛠️ Panel de administración
-            </Link>
-          )}
-        </div>
       </header>
 
       <div className="flex flex-col gap-3 mt-6">
@@ -125,18 +104,6 @@ export default async function HomePage() {
           directa por WhatsApp.
         </p>
       </div>
-
-      {user && (
-        <div className="flex items-center gap-4 pt-4 flex-wrap">
-          <Link href="/mis-reservas" className="text-xs text-muted font-semibold">
-            Mis viajes
-          </Link>
-          <Link href="/cambiar-contrasena" className="text-xs text-muted font-semibold">
-            Cambiar contraseña
-          </Link>
-          <LogoutButton />
-        </div>
-      )}
     </div>
   );
 }

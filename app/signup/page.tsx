@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 export default function SignupPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
+  const [phonePrefix, setPhonePrefix] = useState("+51");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,12 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: {
+          full_name: fullName,
+          phone: `${phonePrefix.trim()} ${phoneNumber.trim()}`,
+        },
+      },
     });
 
     setLoading(false);
@@ -51,7 +58,7 @@ export default function SignupPage() {
   return (
     <div className="flex-1 flex flex-col justify-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
+      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-32 h-32 rounded-2xl mx-auto mb-5" />
       <h1 className="text-2xl font-extrabold mb-1 text-center">Crea tu cuenta</h1>
       <p className="text-sm text-muted mb-6 text-center">Robert's Drivers</p>
 
@@ -68,6 +75,29 @@ export default function SignupPage() {
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
             placeholder="Ana Pérez"
           />
+        </div>
+        <div>
+          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+            CELULAR
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              required
+              value={phonePrefix}
+              onChange={(e) => setPhonePrefix(e.target.value)}
+              className="w-16 px-3 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand text-center"
+              placeholder="+51"
+            />
+            <input
+              type="tel"
+              required
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="flex-1 px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
+              placeholder="987 654 321"
+            />
+          </div>
         </div>
         <div>
           <label className="block text-xs font-mono text-muted mb-2 tracking-wide">

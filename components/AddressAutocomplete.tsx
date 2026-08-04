@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadGoogleMaps } from "@/lib/googleMaps";
 import type { Location } from "@/lib/types";
 
@@ -30,6 +30,8 @@ export function AddressAutocomplete({
   placeholder?: string;
   className?: string;
 }) {
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mapDivRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -142,6 +144,26 @@ export function AddressAutocomplete({
     movePinRef.current?.(location.lat, location.lng);
   }, [location.lat, location.lng]);
 
+  function handleUseMyLocation() {
+    if (!navigator.geolocation) {
+      setLocateError("Tu navegador no permite compartir ubicación.");
+      return;
+    }
+    setLocating(true);
+    setLocateError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        handlePinInteractionRef.current?.(pos.coords.latitude, pos.coords.longitude);
+      },
+      () => {
+        setLocating(false);
+        setLocateError("No pudimos acceder a tu ubicación. Revisa el permiso del navegador.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
   return (
     <div>
       <input
@@ -157,6 +179,15 @@ export function AddressAutocomplete({
           "w-full px-4 py-3.5 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
         }
       />
+      <button
+        type="button"
+        onClick={handleUseMyLocation}
+        disabled={locating}
+        className="text-xs text-brand font-semibold mt-2 disabled:opacity-60"
+      >
+        {locating ? "Ubicándote..." : "📍 Usar mi ubicación actual"}
+      </button>
+      {locateError && <p className="text-[11px] text-danger mt-1">{locateError}</p>}
       <div
         ref={mapDivRef}
         className="w-full h-80 rounded-xl border border-border mt-2 overflow-hidden bg-bg-elevated"

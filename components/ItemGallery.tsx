@@ -1,5 +1,7 @@
 "use client";
 
+import { formatLimaDateTime } from "@/lib/limaTime";
+
 export type GalleryItem = {
   id: string;
   name: string;
@@ -9,15 +11,6 @@ export type GalleryItem = {
   event_date: string | null;
   image_url: string | null;
 };
-
-function formatEventDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-PE", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function ItemGallery({
   items,
@@ -65,7 +58,7 @@ export function ItemGallery({
             {selected.price !== null && (
               <span className="text-brand font-bold">💵 S/{selected.price}</span>
             )}
-            {selected.event_date && <span>📅 {formatEventDate(selected.event_date)}</span>}
+            {selected.event_date && <span>📅 {formatLimaDateTime(selected.event_date)}</span>}
           </div>
           <button
             type="button"
@@ -80,7 +73,7 @@ export function ItemGallery({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-3">
       {items.map((item) => (
         <button
           key={item.id}
@@ -94,23 +87,24 @@ export function ItemGallery({
               src={item.image_url}
               alt={item.name}
               loading="lazy"
-              className="w-full h-24 object-cover"
+              className="w-full h-40 object-cover"
             />
           ) : (
-            <div className="w-full h-24 bg-bg-card flex items-center justify-center text-2xl">
+            <div className="w-full h-40 bg-bg-card flex items-center justify-center text-3xl">
               🖼️
             </div>
           )}
-          <div className="p-2.5">
-            <div className="font-bold text-xs leading-tight">{item.name}</div>
+          <div className="p-3.5">
+            <div className="font-bold text-sm leading-tight">{item.name}</div>
             {item.description && (
-              <div className="text-[11px] text-muted mt-1 line-clamp-2">
-                {item.description}
-              </div>
+              <div className="text-xs text-muted mt-1 line-clamp-2">{item.description}</div>
             )}
-            {item.price !== null && (
-              <div className="text-[11px] text-brand font-bold mt-1">S/{item.price}</div>
-            )}
+            <div className="flex gap-3 mt-1.5">
+              {item.location && <span className="text-xs text-muted">📍 {item.location}</span>}
+              {item.price !== null && (
+                <span className="text-xs text-brand font-bold">💵 S/{item.price}</span>
+              )}
+            </div>
           </div>
         </button>
       ))}

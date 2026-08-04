@@ -6,6 +6,7 @@ import { StepWizard, TextField } from "@/components/StepWizard";
 import { ItemGallery, type GalleryItem } from "@/components/ItemGallery";
 import { createBooking } from "@/lib/createBooking";
 import { reserveWhatsAppWindow, sendToWhatsAppWindow, buildBookingMessage } from "@/lib/whatsapp";
+import { limaDateInputToISOString } from "@/lib/limaTime";
 
 export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
   const router = useRouter();
@@ -25,7 +26,7 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
         serviceSlug: "full-day",
         serviceItemId: seleccionado?.id || null,
         formData: { plan },
-        scheduledFor: fecha || null,
+        scheduledFor: fecha ? limaDateInputToISOString(fecha) : null,
       });
       const mensaje = buildBookingMessage({
         clientName: booking.clientName,
@@ -55,30 +56,29 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
         steps={[
           {
             title: "¿Qué tienes en mente?",
-            canAdvance: plan.trim().length > 0,
+            canAdvance: plan.trim().length > 0 && (!paquetes.length || !!paqueteId),
             content: (
-              <TextField
-                value={plan}
-                onChange={setPlan}
-                placeholder="Ej: Recorrido playas, cumpleaños, visita familiar"
-              />
-            ),
-          },
-          ...(paquetes.length
-            ? [
-                {
-                  title: "¿Qué paquete te interesa?",
-                  canAdvance: !!paqueteId,
-                  content: (
+              <div className="space-y-4">
+                <TextField
+                  value={plan}
+                  onChange={setPlan}
+                  placeholder="Ej: Recorrido playas, cumpleaños, visita familiar"
+                />
+                {paquetes.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-mono text-muted mb-2 tracking-wide">
+                      ¿QUÉ PAQUETE TE INTERESA?
+                    </p>
                     <ItemGallery
                       items={paquetes}
                       selectedId={paqueteId}
                       onSelect={setPaqueteId}
                     />
-                  ),
-                },
-              ]
-            : []),
+                  </div>
+                )}
+              </div>
+            ),
+          },
           {
             title: "¿Qué fecha?",
             canAdvance: fecha.trim().length > 0,

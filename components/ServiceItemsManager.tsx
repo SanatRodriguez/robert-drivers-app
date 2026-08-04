@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { uploadServiceImage } from "@/lib/storage";
+import { limaDateInputToISOString } from "@/lib/limaTime";
 import type { ServiceItem } from "@/lib/types";
 
 export function ServiceItemsManager({
@@ -216,7 +217,7 @@ function ItemForm({
       description: description.trim() || null,
       location: showLocation ? location.trim() || null : null,
       price: price.trim() ? Number(price) : null,
-      event_date: showEventDate && eventDate ? new Date(eventDate).toISOString() : null,
+      event_date: showEventDate && eventDate ? limaDateInputToISOString(eventDate) : null,
       image_url: imageUrl || null,
     };
 

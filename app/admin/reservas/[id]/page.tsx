@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminBookingActions } from "@/components/AdminBookingActions";
 import { buildGoogleMapsLink } from "@/lib/whatsapp";
+import { formatLimaDate, formatLimaDateTime } from "@/lib/limaTime";
 
 export const dynamic = "force-dynamic";
 
@@ -103,7 +104,7 @@ export default async function AdminBookingDetailPage({
           <div className="flex justify-between gap-3">
             <span className="text-muted">Fecha</span>
             <span className="text-right">
-              {new Date(booking.scheduled_for).toLocaleDateString("es-PE")}
+              {formatLimaDate(booking.scheduled_for)}
             </span>
           </div>
         )}
@@ -118,7 +119,7 @@ export default async function AdminBookingDetailPage({
         <div className="flex justify-between gap-3">
           <span className="text-muted">Pedido</span>
           <span className="text-right">
-            {new Date(booking.created_at).toLocaleString("es-PE")}
+            {formatLimaDateTime(booking.created_at)}
           </span>
         </div>
       </div>

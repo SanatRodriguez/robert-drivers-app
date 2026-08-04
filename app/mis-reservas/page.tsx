@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { formatLimaDateTime } from "@/lib/limaTime";
 
 export const dynamic = "force-dynamic";
 
@@ -58,12 +59,7 @@ export default async function MisReservasPage() {
               {b.services?.icon} {b.services?.name}
             </div>
             <div className="text-xs text-muted">
-              {new Date(b.created_at).toLocaleString("es-PE", {
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {formatLimaDateTime(b.created_at)}
             </div>
           </Link>
         ))}

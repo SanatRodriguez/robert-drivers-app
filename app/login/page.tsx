@@ -59,7 +59,7 @@ function LoginForm() {
   return (
     <div className="flex-1 flex flex-col justify-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
+      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-32 h-32 rounded-2xl mx-auto mb-5" />
       <h1 className="text-2xl font-extrabold mb-1 text-center">Ingresa a tu cuenta</h1>
       <p className="text-sm text-muted mb-6 text-center">Robert's Drivers</p>
 
