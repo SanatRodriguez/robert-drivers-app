@@ -14,7 +14,7 @@ export default async function FullDayPage() {
 
   const { data: paquetes } = await supabase
     .from("service_items")
-    .select("id, name, price")
+    .select("id, name, description, price, location, event_date, image_url")
     .eq("service_id", service?.id)
     .eq("is_active", true)
     .order("sort_order");

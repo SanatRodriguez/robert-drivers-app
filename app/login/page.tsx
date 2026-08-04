@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { checkLoginLock, registerFailedLogin, clearLoginAttempts, minutesUntil } from "@/lib/loginAttempts";
 
 export default function LoginPage() {
   return (
@@ -26,22 +27,41 @@ function LoginForm() {
     setLoading(true);
     setError(null);
 
+    const lockedUntil = await checkLoginLock(email);
+    if (lockedUntil) {
+      setError(
+        `Cuenta bloqueada por varios intentos fallidos. Intenta de nuevo en ${minutesUntil(lockedUntil)} min.`
+      );
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    setLoading(false);
     if (error) {
-      setError("Correo o contraseña incorrectos.");
+      const newLock = await registerFailedLogin(email);
+      setLoading(false);
+      setError(
+        newLock
+          ? `Demasiados intentos fallidos. Cuenta bloqueada por 1 hora.`
+          : "Correo o contraseña incorrectos."
+      );
       return;
     }
+
+    await clearLoginAttempts(email);
+    setLoading(false);
     router.push(searchParams.get("next") || "/");
     router.refresh();
   }
 
   return (
     <div className="flex-1 flex flex-col justify-center">
-      <h1 className="text-2xl font-extrabold mb-1">Ingresa a tu cuenta</h1>
-      <p className="text-sm text-muted mb-6">Robert's Drivers</p>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
+      <h1 className="text-2xl font-extrabold mb-1 text-center">Ingresa a tu cuenta</h1>
+      <p className="text-sm text-muted mb-6 text-center">Robert's Drivers</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -69,6 +89,9 @@ function LoginForm() {
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
             placeholder="••••••••"
           />
+          <Link href="/recuperar-contrasena" className="block text-xs text-brand font-semibold mt-2">
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
 
         {error && <p className="text-sm text-danger">{error}</p>}

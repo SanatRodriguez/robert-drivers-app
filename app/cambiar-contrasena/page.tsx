@@ -5,86 +5,90 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SignupPage() {
+export default function CambiarContrasenaPage() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } },
-    });
+    if (password !== confirmPassword) {
+      setError("Las contraseñas nuevas no coinciden.");
+      return;
+    }
 
+    setLoading(true);
+    const supabase = createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) {
+      setLoading(false);
+      setError("No se pudo verificar tu sesión. Vuelve a ingresar.");
+      return;
+    }
+
+    // Verifica la contraseña actual antes de cambiarla.
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (verifyError) {
+      setLoading(false);
+      setError("Tu contraseña actual no es correcta.");
+      return;
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (error) {
-      setError(error.message);
+
+    if (updateError) {
+      setError("No se pudo actualizar la contraseña. Intenta de nuevo.");
       return;
     }
     setDone(true);
+    setTimeout(() => router.push("/"), 1500);
   }
 
   if (done) {
     return (
       <div className="flex-1 flex flex-col justify-center text-center">
-        <h1 className="text-2xl font-extrabold mb-2">Revisa tu correo</h1>
-        <p className="text-sm text-muted mb-6">
-          Te mandamos un link para confirmar tu cuenta antes de ingresar.
-        </p>
-        <Link href="/login" className="text-brand font-semibold text-sm">
-          Volver a ingresar
-        </Link>
+        <h1 className="text-2xl font-extrabold mb-2">✓ Contraseña actualizada</h1>
+        <p className="text-sm text-muted">Te llevamos al inicio...</p>
       </div>
     );
   }
 
   return (
     <div className="flex-1 flex flex-col justify-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/icons/icon-512.png" alt="Robert's Drivers" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
-      <h1 className="text-2xl font-extrabold mb-1 text-center">Crea tu cuenta</h1>
-      <p className="text-sm text-muted mb-6 text-center">Robert's Drivers</p>
+      <Link href="/" className="text-sm text-muted mb-4 w-fit">
+        ← Volver al inicio
+      </Link>
+      <h1 className="text-2xl font-extrabold mb-1">Cambiar contraseña</h1>
+      <p className="text-sm text-muted mb-6">Robert's Drivers</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
-            TU NOMBRE
+            CONTRASEÑA ACTUAL
           </label>
           <input
-            type="text"
+            type="password"
             required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
-            placeholder="Ana Pérez"
+            placeholder="••••••••"
           />
         </div>
         <div>
           <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
-            CORREO
-          </label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
-            placeholder="tu@correo.com"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
-            CONTRASEÑA
+            NUEVA CONTRASEÑA
           </label>
           <input
             type="password"
@@ -92,6 +96,20 @@ export default function SignupPage() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
+            placeholder="Mínimo 6 caracteres"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+            REPITE LA NUEVA CONTRASEÑA
+          </label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
             placeholder="Mínimo 6 caracteres"
           />
@@ -104,16 +122,9 @@ export default function SignupPage() {
           disabled={loading}
           className="w-full py-4 rounded-xl bg-brand text-white font-bold text-sm disabled:opacity-60"
         >
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
+          {loading ? "Guardando..." : "Guardar contraseña"}
         </button>
       </form>
-
-      <p className="text-sm text-muted mt-6 text-center">
-        ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-brand font-semibold">
-          Ingresa
-        </Link>
-      </p>
     </div>
   );
 }

@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { StepWizard, PillGroup, TextField } from "@/components/StepWizard";
+import { StepWizard, TextField } from "@/components/StepWizard";
+import { ItemGallery, type GalleryItem } from "@/components/ItemGallery";
 import { createBooking } from "@/lib/createBooking";
 import { reserveWhatsAppWindow, sendToWhatsAppWindow, buildBookingMessage } from "@/lib/whatsapp";
 
-export function FullDayWizard({
-  paquetes,
-}: {
-  paquetes: { id: string; name: string; price: number | null }[];
-}) {
+export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
   const router = useRouter();
   const [plan, setPlan] = useState("");
   const [paqueteId, setPaqueteId] = useState("");
@@ -18,18 +15,12 @@ export function FullDayWizard({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const opciones = paquetes.map(
-    (p) => `${p.name}${p.price ? ` · S/${p.price}` : ""}`
-  );
-
   async function handleFinish() {
     const waWindow = reserveWhatsAppWindow();
     setSubmitting(true);
     setError(null);
     try {
-      const seleccionado = paquetes.find(
-        (p) => `${p.name}${p.price ? ` · S/${p.price}` : ""}` === paqueteId
-      );
+      const seleccionado = paquetes.find((p) => p.id === paqueteId);
       const booking = await createBooking({
         serviceSlug: "full-day",
         serviceItemId: seleccionado?.id || null,
@@ -73,13 +64,17 @@ export function FullDayWizard({
               />
             ),
           },
-          ...(opciones.length
+          ...(paquetes.length
             ? [
                 {
                   title: "¿Qué paquete te interesa?",
                   canAdvance: !!paqueteId,
                   content: (
-                    <PillGroup options={opciones} value={paqueteId} onChange={setPaqueteId} />
+                    <ItemGallery
+                      items={paquetes}
+                      selectedId={paqueteId}
+                      onSelect={setPaqueteId}
+                    />
                   ),
                 },
               ]

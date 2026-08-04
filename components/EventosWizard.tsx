@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { StepWizard, PillGroup, TextField } from "@/components/StepWizard";
+import { StepWizard } from "@/components/StepWizard";
 import { LocationField } from "@/components/LocationField";
+import { ItemGallery, type GalleryItem } from "@/components/ItemGallery";
 import { createBooking } from "@/lib/createBooking";
 import {
   reserveWhatsAppWindow,
@@ -15,15 +16,9 @@ import type { Location } from "@/lib/types";
 
 const EMPTY_LOCATION: Location = { address_text: "", lat: null, lng: null };
 
-export function EventosWizard({
-  eventos,
-}: {
-  eventos: { id: string; name: string }[];
-}) {
+export function EventosWizard({ eventos }: { eventos: GalleryItem[] }) {
   const router = useRouter();
-  const opciones = [...eventos.map((e) => e.name), "Otro"];
-  const [evento, setEvento] = useState("");
-  const [eventoOtro, setEventoOtro] = useState("");
+  const [eventoId, setEventoId] = useState("");
   const [zona, setZona] = useState<Location>(EMPTY_LOCATION);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,12 +28,11 @@ export function EventosWizard({
     setSubmitting(true);
     setError(null);
     try {
-      const nombreEvento = evento === "Otro" ? eventoOtro : evento;
-      const item = eventos.find((e) => e.name === evento);
+      const item = eventos.find((e) => e.id === eventoId);
       const booking = await createBooking({
         serviceSlug: "eventos",
         serviceItemId: item?.id || null,
-        formData: { evento: nombreEvento },
+        formData: { evento: item?.name || "" },
         origin: zona.address_text ? zona : null,
       });
       const mensaje = buildBookingMessage({
@@ -46,7 +40,7 @@ export function EventosWizard({
         serviceName: booking.serviceName,
         ticketCode: booking.ticket_code,
         lines: [
-          { label: "🎫 Evento", value: nombreEvento },
+          { label: "🎫 Evento", value: item?.name || "" },
           {
             label: "📍 Salgo desde",
             value: zona.address_text,
@@ -72,18 +66,9 @@ export function EventosWizard({
         steps={[
           {
             title: "¿A qué evento vas?",
-            canAdvance: !!evento && (evento !== "Otro" || eventoOtro.trim().length > 0),
+            canAdvance: !!eventoId,
             content: (
-              <div className="space-y-4">
-                <PillGroup options={opciones} value={evento} onChange={setEvento} />
-                {evento === "Otro" && (
-                  <TextField
-                    value={eventoOtro}
-                    onChange={setEventoOtro}
-                    placeholder="Nombre del evento"
-                  />
-                )}
-              </div>
+              <ItemGallery items={eventos} selectedId={eventoId} onSelect={setEventoId} />
             ),
           },
           {

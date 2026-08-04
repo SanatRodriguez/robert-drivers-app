@@ -6,6 +6,7 @@ export type Service = {
   icon: string | null;
   is_active: boolean;
   sort_order: number;
+  coming_soon: boolean;
 };
 
 export type ServiceItem = {
@@ -15,6 +16,8 @@ export type ServiceItem = {
   description: string | null;
   price: number | null;
   event_date: string | null;
+  image_url: string | null;
+  location: string | null;
   is_active: boolean;
   sort_order: number;
 };
