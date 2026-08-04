@@ -54,7 +54,7 @@ export default function ChoferReemplazoPage() {
         lines: [
           { label: "🕐 Cuándo", value: cuandoTexto },
           {
-            label: "📍 Te recojo en",
+            label: "📍 Punto de encuentro",
             value: origen.address_text,
             mapsLink: origen.lat && origen.lng ? buildGoogleMapsLink(origen.lat, origen.lng) : null,
           },
@@ -115,13 +115,13 @@ export default function ChoferReemplazoPage() {
             ),
           },
           {
-            title: "¿Dónde te recojo?",
+            title: "¿Dónde te encontramos?",
             canAdvance: origen.address_text.trim().length > 0,
             content: (
               <LocationField
                 value={origen}
                 onChange={setOrigen}
-                placeholder="Ej: Barranco, restaurante X"
+                placeholder="Ej: Barranco, restaurante X (donde está tu auto)"
                 excludeAddressText={destino.address_text || undefined}
               />
             ),

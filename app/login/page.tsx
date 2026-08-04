@@ -51,8 +51,18 @@ function LoginForm() {
     }
 
     await clearLoginAttempts(email);
+
+    let destination = searchParams.get("next");
+    if (!destination) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = user
+        ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+        : { data: null };
+      destination = profile?.role === "admin" ? "/admin" : "/";
+    }
+
     setLoading(false);
-    router.push(searchParams.get("next") || "/");
+    router.push(destination);
     router.refresh();
   }
 

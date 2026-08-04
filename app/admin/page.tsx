@@ -23,10 +23,16 @@ export default async function AdminPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, ticket_code, status, created_at, services(name, icon), client:profiles!bookings_client_id_fkey(full_name)"
+      "id, ticket_code, status, created_at, driver_id, services(name, icon), client:profiles!bookings_client_id_fkey(full_name), drivers(full_name)"
     )
     .order("created_at", { ascending: false })
     .range(0, PAGE_SIZE - 1);
+
+  const { data: drivers } = await supabase
+    .from("drivers")
+    .select("id, full_name")
+    .eq("is_active", true)
+    .order("full_name");
 
   return (
     <div className="flex-1 flex flex-col py-4">
@@ -54,7 +60,7 @@ export default async function AdminPage() {
         </Link>
       </div>
 
-      <AdminBookingsList initialBookings={(bookings as any) || []} />
+      <AdminBookingsList initialBookings={(bookings as any) || []} drivers={drivers || []} />
     </div>
   );
 }

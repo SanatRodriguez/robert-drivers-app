@@ -30,6 +30,7 @@ export default function SignupPage() {
           full_name: fullName,
           phone: `${phonePrefix.trim()} ${phoneNumber.trim()}`,
         },
+        emailRedirectTo: `${window.location.origin}/`,
       },
     });
 
