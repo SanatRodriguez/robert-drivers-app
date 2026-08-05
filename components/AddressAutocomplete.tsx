@@ -183,17 +183,17 @@ export function AddressAutocomplete({
         type="button"
         onClick={handleUseMyLocation}
         disabled={locating}
-        className="text-xs text-brand font-semibold mt-2 disabled:opacity-60"
+        className="text-sm text-brand font-semibold mt-2 disabled:opacity-60"
       >
         {locating ? "Ubicándote..." : "📍 Usar mi ubicación actual"}
       </button>
-      {locateError && <p className="text-[11px] text-danger mt-1">{locateError}</p>}
+      {locateError && <p className="text-[13px] text-danger mt-1">{locateError}</p>}
       <div
         ref={mapDivRef}
         className="w-full h-80 rounded-xl border border-border mt-2 overflow-hidden bg-bg-elevated"
       />
       {location.lat && location.lng && (
-        <p className="text-[11px] text-muted mt-1.5">
+        <p className="text-[13px] text-muted mt-1.5">
           📍 Arrastra el pin o toca el mapa para ajustar el punto exacto
         </p>
       )}

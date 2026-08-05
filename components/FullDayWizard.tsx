@@ -49,7 +49,7 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
 
   return (
     <div className="flex-1 flex flex-col py-4">
-      <p className="text-xs font-mono text-muted mb-4">☀️ FULL DAY</p>
+      <p className="text-sm font-mono text-muted mb-4">☀️ FULL DAY</p>
       <StepWizard
         submitting={submitting}
         onFinish={handleFinish}
@@ -68,7 +68,7 @@ export function FullDayWizard({ paquetes }: { paquetes: GalleryItem[] }) {
                 />
                 {paquetes.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-mono text-muted mb-2 tracking-wide">
+                    <p className="text-[12px] font-mono text-muted mb-2 tracking-wide">
                       O ELIGE UN PAQUETE
                     </p>
                     <ItemGallery

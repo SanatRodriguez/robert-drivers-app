@@ -136,9 +136,9 @@ function BookingCard({
   return (
     <div className="p-4 rounded-2xl bg-bg-elevated border border-border">
       <div className="flex justify-between items-start mb-2">
-        <span className="font-mono text-xs font-bold text-brand">{booking.ticket_code}</span>
+        <span className="font-mono text-sm font-bold text-brand">{booking.ticket_code}</span>
         <div className="flex items-center gap-2">
-          <span className={`text-xs font-bold ${STATUS_COLOR[booking.status]}`}>
+          <span className={`text-sm font-bold ${STATUS_COLOR[booking.status]}`}>
             {STATUS_LABEL[booking.status]}
           </span>
           <Link href={`/admin/reservas/${booking.id}`} className="text-muted text-lg leading-none">
@@ -149,11 +149,11 @@ function BookingCard({
       <div className="font-bold text-sm mb-1">
         {booking.services?.icon} {booking.services?.name}
       </div>
-      <div className="text-xs text-muted mb-1">
+      <div className="text-sm text-muted mb-1">
         {booking.client?.full_name || "Cliente"} · {formatLimaDateTime(booking.created_at)}
       </div>
       {booking.drivers && (
-        <div className="text-xs text-muted mb-2">🧑‍✈️ {booking.drivers.full_name}</div>
+        <div className="text-sm text-muted mb-2">🧑‍✈️ {booking.drivers.full_name}</div>
       )}
 
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
@@ -201,7 +201,7 @@ function BookingCard({
           disabled={saving === "driver"}
           onChange={(e) => reassignDriver(e.target.value)}
           title="Reasignar conductor"
-          className="flex-1 h-9 px-2 rounded-lg border border-border bg-bg text-xs disabled:opacity-40"
+          className="flex-1 h-9 px-2 rounded-lg border border-border bg-bg text-sm disabled:opacity-40"
         >
           <option value="">🧑‍✈️ Sin asignar</option>
           {drivers.map((d) => (

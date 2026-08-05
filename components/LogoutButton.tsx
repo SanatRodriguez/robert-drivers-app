@@ -17,7 +17,7 @@ export function LogoutButton() {
     <button
       type="button"
       onClick={handleLogout}
-      className="text-xs text-muted font-semibold"
+      className="text-sm text-muted font-semibold"
     >
       Cerrar sesión
     </button>

@@ -72,7 +72,7 @@ export default function ActualizarContrasenaPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             NUEVA CONTRASEÑA
           </label>
           <input
@@ -86,7 +86,7 @@ export default function ActualizarContrasenaPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             REPITE LA CONTRASEÑA
           </label>
           <input

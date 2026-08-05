@@ -75,7 +75,7 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CORREO
           </label>
           <input
@@ -88,7 +88,7 @@ function LoginForm() {
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CONTRASEÑA
           </label>
           <input
@@ -99,7 +99,7 @@ function LoginForm() {
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
             placeholder="••••••••"
           />
-          <Link href="/recuperar-contrasena" className="block text-xs text-brand font-semibold mt-2">
+          <Link href="/recuperar-contrasena" className="block text-sm text-brand font-semibold mt-2">
             ¿Olvidaste tu contraseña?
           </Link>
         </div>

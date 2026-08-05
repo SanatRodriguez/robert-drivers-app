@@ -53,7 +53,7 @@ export function ItemGallery({
           {selected.description && (
             <p className="text-sm text-muted">{selected.description}</p>
           )}
-          <div className="flex flex-wrap gap-3 text-xs text-muted pt-1">
+          <div className="flex flex-wrap gap-3 text-sm text-muted pt-1">
             {selected.location && <span>📍 {selected.location}</span>}
             {selected.price !== null && (
               <span className="text-brand font-bold">💵 S/{selected.price}</span>
@@ -63,7 +63,7 @@ export function ItemGallery({
           <button
             type="button"
             onClick={() => onSelect("")}
-            className="text-xs text-brand font-semibold pt-2"
+            className="text-sm text-brand font-semibold pt-2"
           >
             ← Cambiar
           </button>
@@ -97,12 +97,12 @@ export function ItemGallery({
           <div className="p-3.5">
             <div className="font-bold text-sm leading-tight">{item.name}</div>
             {item.description && (
-              <div className="text-xs text-muted mt-1 line-clamp-2">{item.description}</div>
+              <div className="text-sm text-muted mt-1 line-clamp-2">{item.description}</div>
             )}
             <div className="flex gap-3 mt-1.5">
-              {item.location && <span className="text-xs text-muted">📍 {item.location}</span>}
+              {item.location && <span className="text-sm text-muted">📍 {item.location}</span>}
               {item.price !== null && (
-                <span className="text-xs text-brand font-bold">💵 S/{item.price}</span>
+                <span className="text-sm text-brand font-bold">💵 S/{item.price}</span>
               )}
             </div>
           </div>

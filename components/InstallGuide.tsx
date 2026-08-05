@@ -72,19 +72,19 @@ export function InstallGuide() {
         </div>
         <div className="flex-1 min-w-0">
           {platform === "ios" ? (
-            <p className="text-xs text-ink leading-snug">
+            <p className="text-sm text-ink leading-snug">
               Instala esta app: toca <span className="font-bold">Compartir</span> (□↑) y luego{" "}
               <span className="font-bold">"Agregar a pantalla de inicio"</span>.
             </p>
           ) : (
             <>
-              <p className="text-xs text-ink leading-snug mb-2">
+              <p className="text-sm text-ink leading-snug mb-2">
                 Instala Robert's Drivers como app en tu celular.
               </p>
               <button
                 type="button"
                 onClick={handleInstallClick}
-                className="text-xs font-bold text-white bg-brand rounded-lg px-3 py-1.5"
+                className="text-sm font-bold text-white bg-brand rounded-lg px-3 py-1.5"
               >
                 Instalar
               </button>

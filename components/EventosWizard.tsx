@@ -59,7 +59,7 @@ export function EventosWizard({ eventos }: { eventos: GalleryItem[] }) {
 
   return (
     <div className="flex-1 flex flex-col py-4">
-      <p className="text-xs font-mono text-muted mb-4">🎫 EVENTOS</p>
+      <p className="text-sm font-mono text-muted mb-4">🎫 EVENTOS</p>
       <StepWizard
         submitting={submitting}
         onFinish={handleFinish}

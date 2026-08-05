@@ -64,12 +64,12 @@ export function LocationManager() {
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm">📍 {loc.label}</span>
                     {loc.is_default && (
-                      <span className="text-[10px] font-bold text-brand border border-brand/40 rounded-full px-2 py-0.5">
+                      <span className="text-[12px] font-bold text-brand border border-brand/40 rounded-full px-2 py-0.5">
                         Por defecto
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted mt-1 truncate">{loc.address_text}</p>
+                  <p className="text-sm text-muted mt-1 truncate">{loc.address_text}</p>
                 </div>
               </div>
               <div className="flex gap-4 mt-3">
@@ -80,7 +80,7 @@ export function LocationManager() {
                       await setDefaultLocation(loc.id);
                       await refresh();
                     }}
-                    className="text-xs text-brand font-semibold"
+                    className="text-sm text-brand font-semibold"
                   >
                     Marcar por defecto
                   </button>
@@ -88,7 +88,7 @@ export function LocationManager() {
                 <button
                   type="button"
                   onClick={() => setEditingId(loc.id)}
-                  className="text-xs text-muted font-semibold"
+                  className="text-sm text-muted font-semibold"
                 >
                   Editar
                 </button>
@@ -98,7 +98,7 @@ export function LocationManager() {
                     await deleteLocation(loc.id);
                     await refresh();
                   }}
-                  className="text-xs text-danger font-semibold"
+                  className="text-sm text-danger font-semibold"
                 >
                   Eliminar
                 </button>
@@ -155,7 +155,7 @@ function LocationForm({
   return (
     <div className="p-4 rounded-2xl bg-bg-elevated border border-border space-y-3">
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           ETIQUETA
         </label>
         <input
@@ -167,7 +167,7 @@ function LocationForm({
         />
       </div>
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           DIRECCIÓN
         </label>
         <AddressAutocomplete
@@ -181,7 +181,7 @@ function LocationForm({
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2.5 rounded-xl border border-border text-xs text-muted"
+          className="px-4 py-2.5 rounded-xl border border-border text-sm text-muted"
         >
           Cancelar
         </button>
@@ -193,7 +193,7 @@ function LocationForm({
             await onSubmit(label.trim(), location);
             setSaving(false);
           }}
-          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-xs font-bold disabled:opacity-40"
+          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-bold disabled:opacity-40"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>

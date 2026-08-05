@@ -74,7 +74,7 @@ export default async function AdminBookingDetailPage({
                   href={buildGoogleMapsLink(origin.lat, origin.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-brand font-semibold mt-0.5"
+                  className="block text-sm text-brand font-semibold mt-0.5"
                 >
                   🗺️ Ver en el mapa
                 </a>
@@ -92,7 +92,7 @@ export default async function AdminBookingDetailPage({
                   href={buildGoogleMapsLink(destination.lat, destination.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-brand font-semibold mt-0.5"
+                  className="block text-sm text-brand font-semibold mt-0.5"
                 >
                   🗺️ Ver en el mapa
                 </a>

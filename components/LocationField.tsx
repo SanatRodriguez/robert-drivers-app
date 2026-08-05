@@ -50,7 +50,7 @@ export function LocationField({
               onClick={() =>
                 onChange({ address_text: loc.address_text, lat: loc.lat, lng: loc.lng })
               }
-              className="px-3 py-1.5 rounded-full text-xs border border-border bg-bg-elevated text-muted"
+              className="px-3 py-1.5 rounded-full text-sm border border-border bg-bg-elevated text-muted"
             >
               📍 {loc.label}
             </button>
@@ -71,7 +71,7 @@ export function LocationField({
         <button
           type="button"
           onClick={() => setShowSave(true)}
-          className="text-xs text-brand mt-2"
+          className="text-sm text-brand mt-2"
         >
           + Guardar esta dirección
         </button>
@@ -84,19 +84,19 @@ export function LocationField({
             value={saveLabel}
             onChange={(e) => setSaveLabel(e.target.value)}
             placeholder="Ej: Casa, Trabajo"
-            className="flex-1 px-3 py-2 rounded-lg bg-bg-elevated border border-border text-xs"
+            className="flex-1 px-3 py-2 rounded-lg bg-bg-elevated border border-border text-sm"
           />
           <button
             type="button"
             onClick={handleSave}
-            className="px-3 py-2 rounded-lg bg-brand text-white text-xs font-bold shrink-0"
+            className="px-3 py-2 rounded-lg bg-brand text-white text-sm font-bold shrink-0"
           >
             Guardar
           </button>
         </div>
       )}
 
-      {saved && <p className="text-xs text-whatsapp mt-2">✓ Dirección guardada</p>}
+      {saved && <p className="text-sm text-whatsapp mt-2">✓ Dirección guardada</p>}
     </div>
   );
 }

@@ -65,7 +65,7 @@ export default function SignupPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             TU NOMBRE
           </label>
           <input
@@ -78,7 +78,7 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CELULAR
           </label>
           <div className="flex gap-2">
@@ -101,7 +101,7 @@ export default function SignupPage() {
           </div>
         </div>
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CORREO
           </label>
           <input
@@ -114,7 +114,7 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CONTRASEÑA
           </label>
           <input

@@ -65,9 +65,9 @@ export default async function HomePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-extrabold text-sm">{s.name}</div>
-                <div className="text-xs text-muted mt-0.5">{s.description}</div>
+                <div className="text-sm text-muted mt-0.5">{s.description}</div>
               </div>
-              <span className="text-[10px] font-bold text-muted border border-border rounded-full px-2 py-1 shrink-0">
+              <span className="text-[12px] font-bold text-muted border border-border rounded-full px-2 py-1 shrink-0">
                 Próximamente
               </span>
             </div>
@@ -82,7 +82,7 @@ export default async function HomePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-extrabold text-sm">{s.name}</div>
-                <div className="text-xs text-muted mt-0.5">{s.description}</div>
+                <div className="text-sm text-muted mt-0.5">{s.description}</div>
               </div>
               <div className="text-muted text-lg">›</div>
             </Link>
@@ -99,7 +99,7 @@ export default async function HomePage() {
         <div className="w-9 h-9 rounded-full bg-brand flex items-center justify-center font-extrabold text-sm text-white">
           R
         </div>
-        <p className="text-xs text-muted leading-tight">
+        <p className="text-sm text-muted leading-tight">
           <b className="text-ink">Robert</b> — 20 años en el rubro. Coordinación
           directa por WhatsApp.
         </p>

@@ -37,25 +37,25 @@ export default async function AdminPage() {
 
   return (
     <div className="flex-1 flex flex-col py-4">
-      <p className="text-xs font-mono text-muted mb-1">PANEL DE ROBERT</p>
+      <p className="text-sm font-mono text-muted mb-1">PANEL DE ROBERT</p>
       <h1 className="text-2xl font-extrabold mb-4">Reservas</h1>
 
       <div className="flex flex-wrap gap-2 mb-6">
         <Link
           href="/admin/eventos"
-          className="text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+          className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
         >
           🎫 Eventos
         </Link>
         <Link
           href="/admin/full-day"
-          className="text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+          className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
         >
           ☀️ Full day
         </Link>
         <Link
           href="/admin/conductores"
-          className="text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+          className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
         >
           🧑‍✈️ Conductores
         </Link>

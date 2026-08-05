@@ -76,7 +76,7 @@ export default function TrasladosPage() {
 
   return (
     <div className="flex-1 flex flex-col py-4">
-      <p className="text-xs font-mono text-muted mb-4">📍 TRASLADOS</p>
+      <p className="text-sm font-mono text-muted mb-4">📍 TRASLADOS</p>
       <StepWizard
         submitting={submitting}
         onFinish={handleFinish}
@@ -89,7 +89,7 @@ export default function TrasladosPage() {
                 <PillGroup options={cuandoOpciones} value={cuando} onChange={setCuando} />
                 {cuando === "Otro día" && (
                   <div>
-                    <label className="block text-[10px] font-mono text-muted mb-2">
+                    <label className="block text-[12px] font-mono text-muted mb-2">
                       FECHA
                     </label>
                     <input
@@ -101,7 +101,7 @@ export default function TrasladosPage() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] font-mono text-muted mb-2">
+                  <label className="block text-[12px] font-mono text-muted mb-2">
                     HORA
                   </label>
                   <input

@@ -65,7 +65,7 @@ export function AdminBookingActions({
   return (
     <div className="bg-bg-elevated border border-border rounded-2xl p-5 space-y-4">
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           ESTADO
         </label>
         <select
@@ -82,7 +82,7 @@ export function AdminBookingActions({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           CONDUCTOR ASIGNADO
         </label>
         <select
@@ -98,7 +98,7 @@ export function AdminBookingActions({
           ))}
         </select>
         {!drivers.length && (
-          <p className="text-xs text-muted mt-2">
+          <p className="text-sm text-muted mt-2">
             Todavía no hay conductores cargados en la base de datos.
           </p>
         )}

@@ -36,7 +36,7 @@ export default async function AdminEventosPage() {
       <Link href="/admin" className="text-sm text-muted mb-4 w-fit">
         ← Panel
       </Link>
-      <p className="text-xs font-mono text-muted mb-1">EVENTOS</p>
+      <p className="text-sm font-mono text-muted mb-1">EVENTOS</p>
       <h1 className="text-2xl font-extrabold mb-6">Gestionar eventos</h1>
 
       {service ? (

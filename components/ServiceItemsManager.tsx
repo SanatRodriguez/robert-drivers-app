@@ -57,19 +57,19 @@ export function ServiceItemsManager({
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm truncate">{item.name}</span>
                 {!item.is_active && (
-                  <span className="text-[10px] text-muted border border-border rounded-full px-2 py-0.5 shrink-0">
+                  <span className="text-[12px] text-muted border border-border rounded-full px-2 py-0.5 shrink-0">
                     Oculto
                   </span>
                 )}
               </div>
               {item.description && (
-                <p className="text-xs text-muted mt-0.5 line-clamp-1">{item.description}</p>
+                <p className="text-sm text-muted mt-0.5 line-clamp-1">{item.description}</p>
               )}
               <div className="flex gap-4 mt-2">
                 <button
                   type="button"
                   onClick={() => setEditingId(item.id)}
-                  className="text-xs text-brand font-semibold"
+                  className="text-sm text-brand font-semibold"
                 >
                   Editar
                 </button>
@@ -122,7 +122,7 @@ function ToggleActiveButton({ item }: { item: ServiceItem }) {
           .eq("id", item.id);
         router.refresh();
       }}
-      className="text-xs text-muted font-semibold"
+      className="text-sm text-muted font-semibold"
     >
       {item.is_active ? "Ocultar" : "Mostrar"}
     </button>
@@ -145,7 +145,7 @@ function DeleteButton({ itemId }: { itemId: string }) {
           await supabase.from("service_items").delete().eq("id", itemId);
           router.refresh();
         }}
-        className="text-xs text-danger font-semibold"
+        className="text-sm text-danger font-semibold"
       >
         {saving ? "Eliminando..." : "¿Seguro? Confirmar"}
       </button>
@@ -156,7 +156,7 @@ function DeleteButton({ itemId }: { itemId: string }) {
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="text-xs text-danger font-semibold"
+      className="text-sm text-danger font-semibold"
     >
       Eliminar
     </button>
@@ -237,7 +237,7 @@ function ItemForm({
   return (
     <div className="p-4 rounded-2xl bg-bg-elevated border border-border space-y-3">
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           {nameLabel.toUpperCase()}
         </label>
         <input
@@ -249,7 +249,7 @@ function ItemForm({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           DESCRIPCIÓN
         </label>
         <textarea
@@ -262,7 +262,7 @@ function ItemForm({
 
       {showLocation && (
         <div>
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             UBICACIÓN
           </label>
           <input
@@ -277,7 +277,7 @@ function ItemForm({
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             COSTO APROX. (S/)
           </label>
           <input
@@ -290,7 +290,7 @@ function ItemForm({
         </div>
         {showEventDate && (
           <div className="flex-1">
-            <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+            <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
               FECHA
             </label>
             <input
@@ -304,7 +304,7 @@ function ItemForm({
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           FOTO
         </label>
         {imageUrl && (
@@ -316,18 +316,18 @@ function ItemForm({
           accept="image/*"
           onChange={handleImageChange}
           disabled={uploading}
-          className="w-full text-xs text-muted"
+          className="w-full text-sm text-muted"
         />
-        {uploading && <p className="text-xs text-muted mt-1">Subiendo...</p>}
+        {uploading && <p className="text-sm text-muted mt-1">Subiendo...</p>}
       </div>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={onDone}
-          className="px-4 py-2.5 rounded-xl border border-border text-xs text-muted"
+          className="px-4 py-2.5 rounded-xl border border-border text-sm text-muted"
         >
           Cancelar
         </button>
@@ -335,7 +335,7 @@ function ItemForm({
           type="button"
           disabled={!canSave || saving || uploading}
           onClick={handleSave}
-          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-xs font-bold disabled:opacity-40"
+          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-bold disabled:opacity-40"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>

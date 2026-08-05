@@ -64,22 +64,22 @@ export default async function BookingDetailPage({
 
       <div className="bg-bg-elevated border border-border rounded-2xl p-5 text-left space-y-3">
         <div className="flex justify-between items-center">
-          <span className="text-xs font-mono text-muted">TICKET</span>
+          <span className="text-sm font-mono text-muted">TICKET</span>
           <span className="font-mono font-bold text-brand">{booking.ticket_code}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs font-mono text-muted">SERVICIO</span>
+          <span className="text-sm font-mono text-muted">SERVICIO</span>
           <span className="text-sm font-semibold">
             {booking.services?.icon} {booking.services?.name}
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs font-mono text-muted">ESTADO</span>
+          <span className="text-sm font-mono text-muted">ESTADO</span>
           <span className="text-sm font-semibold">{STATUS_LABEL[booking.status]}</span>
         </div>
         {origin?.address_text && (
           <div className="flex justify-between items-start gap-3">
-            <span className="text-xs font-mono text-muted shrink-0">ORIGEN</span>
+            <span className="text-sm font-mono text-muted shrink-0">ORIGEN</span>
             <span className="text-sm text-right">
               {origin.address_text}
               {origin.lat && origin.lng && (
@@ -87,7 +87,7 @@ export default async function BookingDetailPage({
                   href={buildGoogleMapsLink(origin.lat, origin.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-brand font-semibold mt-0.5"
+                  className="block text-sm text-brand font-semibold mt-0.5"
                 >
                   🗺️ Ver en el mapa
                 </a>
@@ -97,7 +97,7 @@ export default async function BookingDetailPage({
         )}
         {destination?.address_text && (
           <div className="flex justify-between items-start gap-3">
-            <span className="text-xs font-mono text-muted shrink-0">DESTINO</span>
+            <span className="text-sm font-mono text-muted shrink-0">DESTINO</span>
             <span className="text-sm text-right">
               {destination.address_text}
               {destination.lat && destination.lng && (
@@ -105,7 +105,7 @@ export default async function BookingDetailPage({
                   href={buildGoogleMapsLink(destination.lat, destination.lng)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-brand font-semibold mt-0.5"
+                  className="block text-sm text-brand font-semibold mt-0.5"
                 >
                   🗺️ Ver en el mapa
                 </a>
@@ -124,7 +124,7 @@ export default async function BookingDetailPage({
         💬 Abrir WhatsApp de nuevo
       </a>
 
-      <p className="text-xs text-muted mt-5">
+      <p className="text-sm text-muted mt-5">
         Guarda este código de ticket — cuando un conductor te escriba, va a mencionarlo
         para que sepas que es de confianza.
       </p>

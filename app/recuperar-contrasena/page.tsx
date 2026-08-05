@@ -51,7 +51,7 @@ export default function RecuperarContrasenaPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-sm font-mono text-muted mb-2 tracking-wide">
             CORREO
           </label>
           <input

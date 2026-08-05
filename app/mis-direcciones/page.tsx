@@ -15,7 +15,7 @@ export default async function MisDireccionesPage() {
       <Link href="/" className="text-sm text-muted mb-4 w-fit">
         ← Volver al inicio
       </Link>
-      <p className="text-xs font-mono text-muted mb-1">MIS DIRECCIONES</p>
+      <p className="text-sm font-mono text-muted mb-1">MIS DIRECCIONES</p>
       <h1 className="text-2xl font-extrabold mb-1">Ubicaciones guardadas</h1>
       <p className="text-sm text-muted mb-6">
         Úsalas para pedir Traslados o Chofer de reemplazo más rápido.

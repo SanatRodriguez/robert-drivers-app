@@ -50,21 +50,21 @@ export function DriversManager({ drivers }: { drivers: Driver[] }) {
               <div className="flex items-center gap-2">
                 <span className="font-bold text-sm truncate">{driver.full_name}</span>
                 {!driver.is_active && (
-                  <span className="text-[10px] text-muted border border-border rounded-full px-2 py-0.5 shrink-0">
+                  <span className="text-[12px] text-muted border border-border rounded-full px-2 py-0.5 shrink-0">
                     Inactivo
                   </span>
                 )}
               </div>
-              <p className="text-xs text-muted mt-0.5 truncate">
+              <p className="text-sm text-muted mt-0.5 truncate">
                 {[driver.car_model, driver.car_color, driver.plate].filter(Boolean).join(" · ") ||
                   "Sin datos del auto"}
               </p>
-              {driver.phone && <p className="text-xs text-muted mt-0.5">📞 {driver.phone}</p>}
+              {driver.phone && <p className="text-sm text-muted mt-0.5">📞 {driver.phone}</p>}
               <div className="flex gap-4 mt-2">
                 <button
                   type="button"
                   onClick={() => setEditingId(driver.id)}
-                  className="text-xs text-brand font-semibold"
+                  className="text-sm text-brand font-semibold"
                 >
                   Editar
                 </button>
@@ -111,7 +111,7 @@ function ToggleActiveButton({ driver }: { driver: Driver }) {
           .eq("id", driver.id);
         router.refresh();
       }}
-      className="text-xs text-muted font-semibold"
+      className="text-sm text-muted font-semibold"
     >
       {driver.is_active ? "Desactivar" : "Activar"}
     </button>
@@ -134,7 +134,7 @@ function DeleteButton({ driverId }: { driverId: string }) {
           await supabase.from("drivers").delete().eq("id", driverId);
           router.refresh();
         }}
-        className="text-xs text-danger font-semibold"
+        className="text-sm text-danger font-semibold"
       >
         {saving ? "Eliminando..." : "¿Seguro? Confirmar"}
       </button>
@@ -145,7 +145,7 @@ function DeleteButton({ driverId }: { driverId: string }) {
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="text-xs text-danger font-semibold"
+      className="text-sm text-danger font-semibold"
     >
       Eliminar
     </button>
@@ -209,7 +209,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
   return (
     <div className="p-4 rounded-2xl bg-bg-elevated border border-border space-y-3">
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           NOMBRE COMPLETO
         </label>
         <input
@@ -222,7 +222,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             MODELO DE AUTO
           </label>
           <input
@@ -234,7 +234,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
           />
         </div>
         <div className="flex-1">
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             COLOR
           </label>
           <input
@@ -249,7 +249,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             PLACA
           </label>
           <input
@@ -261,7 +261,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
           />
         </div>
         <div className="flex-1">
-          <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+          <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
             CELULAR
           </label>
           <input
@@ -275,7 +275,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
       </div>
 
       <div>
-        <label className="block text-[10px] font-mono text-muted mb-2 tracking-wide">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           FOTO
         </label>
         {photoUrl && (
@@ -287,18 +287,18 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
           accept="image/*"
           onChange={handlePhotoChange}
           disabled={uploading}
-          className="w-full text-xs text-muted"
+          className="w-full text-sm text-muted"
         />
-        {uploading && <p className="text-xs text-muted mt-1">Subiendo...</p>}
+        {uploading && <p className="text-sm text-muted mt-1">Subiendo...</p>}
       </div>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={onDone}
-          className="px-4 py-2.5 rounded-xl border border-border text-xs text-muted"
+          className="px-4 py-2.5 rounded-xl border border-border text-sm text-muted"
         >
           Cancelar
         </button>
@@ -306,7 +306,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
           type="button"
           disabled={!canSave || saving || uploading}
           onClick={handleSave}
-          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-xs font-bold disabled:opacity-40"
+          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-bold disabled:opacity-40"
         >
           {saving ? "Guardando..." : "Guardar"}
         </button>

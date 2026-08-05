@@ -1,13 +1,13 @@
-export const WHATSAPP_NUMBER = "51955377609"; // Asunción: número de Robert. Confirmar/reemplazar.
+export const WHATSAPP_NUMBER = "51955377609"; // Número de Robert, confirmado.
 
 export function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-// Enlace estándar de Google Maps — al abrirlo en el celular, si tiene Waze
-// instalado normalmente el sistema ofrece abrirlo ahí también.
+// Enlace de Google Maps en modo "cómo llegar" — abre la navegación lista
+// para arrancar, en vez de solo mostrar el punto en el mapa.
 export function buildGoogleMapsLink(lat: number, lng: number) {
-  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 }
 
 export function buildBookingMessage(params: {

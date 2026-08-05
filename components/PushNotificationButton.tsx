@@ -30,7 +30,7 @@ export function PushNotificationButton({ adminId }: { adminId: string }) {
 
   if (status === "granted") {
     return (
-      <span className="text-xs font-bold text-whatsapp border border-border rounded-full px-3 py-1.5">
+      <span className="text-sm font-bold text-whatsapp border border-border rounded-full px-3 py-1.5">
         🔔 Notificaciones activas
       </span>
     );
@@ -38,7 +38,7 @@ export function PushNotificationButton({ adminId }: { adminId: string }) {
 
   if (status === "denied") {
     return (
-      <span className="text-xs text-muted border border-border rounded-full px-3 py-1.5">
+      <span className="text-sm text-muted border border-border rounded-full px-3 py-1.5">
         🔕 Bloqueadas — actívalas desde ajustes del navegador
       </span>
     );
@@ -50,11 +50,11 @@ export function PushNotificationButton({ adminId }: { adminId: string }) {
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="text-xs font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5 disabled:opacity-60"
+        className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5 disabled:opacity-60"
       >
         {loading ? "Activando..." : "🔔 Activar notificaciones"}
       </button>
-      {error && <p className="text-[11px] text-danger mt-1">{error}</p>}
+      {error && <p className="text-[13px] text-danger mt-1">{error}</p>}
     </div>
   );
 }

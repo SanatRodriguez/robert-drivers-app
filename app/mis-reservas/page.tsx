@@ -39,7 +39,7 @@ export default async function MisReservasPage() {
       <Link href="/" className="text-sm text-muted mb-4 w-fit">
         ← Volver al inicio
       </Link>
-      <p className="text-xs font-mono text-muted mb-1">MIS VIAJES</p>
+      <p className="text-sm font-mono text-muted mb-1">MIS VIAJES</p>
       <h1 className="text-2xl font-extrabold mb-6">Tus reservas</h1>
 
       <div className="flex flex-col gap-3">
@@ -50,15 +50,15 @@ export default async function MisReservasPage() {
             className="p-4 rounded-2xl bg-bg-elevated border border-border"
           >
             <div className="flex justify-between items-start mb-2">
-              <span className="font-mono text-xs font-bold text-brand">{b.ticket_code}</span>
-              <span className={`text-xs font-bold ${STATUS_COLOR[b.status]}`}>
+              <span className="font-mono text-sm font-bold text-brand">{b.ticket_code}</span>
+              <span className={`text-sm font-bold ${STATUS_COLOR[b.status]}`}>
                 {STATUS_LABEL[b.status]}
               </span>
             </div>
             <div className="font-bold text-sm mb-1">
               {b.services?.icon} {b.services?.name}
             </div>
-            <div className="text-xs text-muted">
+            <div className="text-sm text-muted">
               {formatLimaDateTime(b.created_at)}
             </div>
           </Link>
