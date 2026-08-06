@@ -42,3 +42,27 @@ export type Location = {
   lat: number | null;
   lng: number | null;
 };
+
+export type DriverQueue = {
+  id: string;
+  name: string;
+  created_at: string;
+};
+
+export type QueueEntryStatus = "pool" | "waiting" | "completed" | "removed";
+
+export type QueueEntry = {
+  id: string;
+  queue_id: string;
+  driver_id: string;
+  status: QueueEntryStatus;
+  position: number | null;
+  created_at: string;
+  drivers: {
+    id: string;
+    full_name: string;
+    car_model: string | null;
+    plate: string | null;
+    seats: number | null;
+  };
+};

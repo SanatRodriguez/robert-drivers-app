@@ -14,10 +14,12 @@ export type Driver = {
   phone: string | null;
   photo_url: string | null;
   is_active: boolean;
+  seats: number | null;
 };
 
 export function DriversManager({ drivers }: { drivers: Driver[] }) {
   const [adding, setAdding] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
@@ -56,8 +58,14 @@ export function DriversManager({ drivers }: { drivers: Driver[] }) {
                 )}
               </div>
               <p className="text-sm text-muted mt-0.5 truncate">
-                {[driver.car_model, driver.car_color, driver.plate].filter(Boolean).join(" · ") ||
-                  "Sin datos del auto"}
+                {[
+                  driver.car_model,
+                  driver.car_color,
+                  driver.plate,
+                  driver.seats ? `${driver.seats} asientos` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "Sin datos del auto"}
               </p>
               {driver.phone && <p className="text-sm text-muted mt-0.5">📞 {driver.phone}</p>}
               <div className="flex gap-4 mt-2">
@@ -80,16 +88,26 @@ export function DriversManager({ drivers }: { drivers: Driver[] }) {
         <p className="text-sm text-muted">Todavía no hay conductores cargados.</p>
       )}
 
-      {adding ? (
-        <DriverForm onDone={() => setAdding(false)} />
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="py-3.5 rounded-xl border border-dashed border-border text-sm text-brand font-bold"
-        >
-          + Agregar conductor
-        </button>
+      {adding && <DriverForm onDone={() => setAdding(false)} />}
+      {bulkOpen && <BulkUploadForm onDone={() => setBulkOpen(false)} />}
+
+      {!adding && !bulkOpen && (
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="flex-1 py-3.5 rounded-xl border border-dashed border-border text-sm text-brand font-bold"
+          >
+            + Agregar conductor
+          </button>
+          <button
+            type="button"
+            onClick={() => setBulkOpen(true)}
+            className="flex-1 py-3.5 rounded-xl border border-dashed border-border text-sm text-brand font-bold"
+          >
+            📋 Carga masiva
+          </button>
+        </div>
       )}
     </div>
   );
@@ -159,6 +177,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
   const [carColor, setCarColor] = useState(initial?.car_color || "");
   const [plate, setPlate] = useState(initial?.plate || "");
   const [phone, setPhone] = useState(initial?.phone || "");
+  const [seats, setSeats] = useState(initial?.seats?.toString() || "");
   const [photoUrl, setPhotoUrl] = useState(initial?.photo_url || "");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -190,6 +209,7 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
       car_color: carColor.trim() || null,
       plate: plate.trim() || null,
       phone: phone.trim() || null,
+      seats: seats.trim() ? parseInt(seats.trim(), 10) : null,
       photo_url: photoUrl || null,
     };
 
@@ -274,6 +294,20 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
         </div>
       </div>
 
+      <div className="w-1/2 pr-1.5">
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
+          ASIENTOS
+        </label>
+        <input
+          type="number"
+          min={1}
+          value={seats}
+          onChange={(e) => setSeats(e.target.value)}
+          placeholder="Ej: 4"
+          className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm outline-none focus:border-brand"
+        />
+      </div>
+
       <div>
         <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
           FOTO
@@ -309,6 +343,98 @@ function DriverForm({ initial, onDone }: { initial?: Driver; onDone: () => void 
           className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-bold disabled:opacity-40"
         >
           {saving ? "Guardando..." : "Guardar"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Una fila por conductor, columnas separadas por tab (al pegar de Excel) o
+// coma: Nombre completo, Modelo, Color, Placa, Celular, Asientos. Solo el
+// nombre es obligatorio.
+function parseBulkRow(line: string) {
+  const cols = (line.includes("\t") ? line.split("\t") : line.split(","))
+    .map((c) => c.trim());
+  const full_name = cols[0] || "";
+  if (!full_name) return null;
+  const seatsNum = cols[5] ? parseInt(cols[5], 10) : NaN;
+  return {
+    full_name,
+    car_model: cols[1] || null,
+    car_color: cols[2] || null,
+    plate: cols[3] || null,
+    phone: cols[4] || null,
+    seats: Number.isFinite(seatsNum) ? seatsNum : null,
+  };
+}
+
+function BulkUploadForm({ onDone }: { onDone: () => void }) {
+  const router = useRouter();
+  const [text, setText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const rows = text
+    .split("\n")
+    .map(parseBulkRow)
+    .filter((r): r is NonNullable<ReturnType<typeof parseBulkRow>> => r !== null);
+
+  async function handleSave() {
+    if (!rows.length) return;
+    setSaving(true);
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.from("drivers").insert(rows);
+    setSaving(false);
+    if (error) {
+      setError("No se pudo guardar. Intenta de nuevo.");
+      return;
+    }
+    router.refresh();
+    onDone();
+  }
+
+  return (
+    <div className="p-4 rounded-2xl bg-bg-elevated border border-border space-y-3">
+      <div>
+        <label className="block text-[12px] font-mono text-muted mb-2 tracking-wide">
+          PEGAR LISTA (UNO POR LÍNEA)
+        </label>
+        <p className="text-sm text-muted mb-2">
+          Copia y pega directo de una hoja de cálculo. Orden de columnas: nombre completo,
+          modelo, color, placa, celular, asientos. Solo el nombre es obligatorio.
+        </p>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={8}
+          placeholder={"Juan Pérez\tToyota Yaris\tBlanco\tABC-123\t987654321\t4\nMaría Gómez\tHyundai Accent\tGris\tXYZ-789\t912345678\t4"}
+          className="w-full px-3 py-2.5 rounded-xl bg-bg border border-border text-sm outline-none focus:border-brand font-mono"
+        />
+        {text.trim().length > 0 && (
+          <p className="text-sm text-muted mt-2">
+            {rows.length} conductor{rows.length === 1 ? "" : "es"} detectado{rows.length === 1 ? "" : "s"}
+          </p>
+        )}
+      </div>
+
+      {error && <p className="text-sm text-danger">{error}</p>}
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={onDone}
+          className="px-4 py-2.5 rounded-xl border border-border text-sm text-muted"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          disabled={!rows.length || saving}
+          onClick={handleSave}
+          className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-bold disabled:opacity-40"
+        >
+          {saving ? "Guardando..." : `Guardar ${rows.length || ""}`.trim()}
         </button>
       </div>
     </div>
