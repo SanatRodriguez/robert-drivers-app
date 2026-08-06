@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { QueueEntry } from "@/lib/types";
@@ -35,6 +35,14 @@ export function QueueManager({
     .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   const pool = entries.filter((e) => e.status === "pool");
 
+  const [localWaiting, setLocalWaiting] = useState(waiting);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setLocalWaiting(waiting), [entries]);
+
+  const dragStateRef = useRef<{ id: string; startIndex: number } | null>(null);
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+
   async function addToQueue(entryId: string) {
     setBusyId(entryId);
     setActionError(null);
@@ -52,7 +60,10 @@ export function QueueManager({
     router.refresh();
   }
 
-  async function completeEntry(entryId: string) {
+  // Se usa tanto para "Listo" (le tocó turno) como "Retirar" (se bajó de
+  // la fila sin ser llamado) — en ambos casos vuelve a estar disponible
+  // en "Participantes" para sumarlo de nuevo más tarde, nunca desaparece.
+  async function returnToPool(entryId: string) {
     setBusyId(entryId);
     setActionError(null);
     const supabase = createClient();
@@ -68,7 +79,10 @@ export function QueueManager({
     router.refresh();
   }
 
-  async function removeEntry(entryId: string) {
+  // Distinto de returnToPool: esto sí lo saca por completo del evento
+  // (ej: se bajó del todo, no va a participar). Solo disponible desde
+  // "Participantes", no desde la fila en vivo.
+  async function removeFromEvent(entryId: string) {
     setBusyId(entryId);
     setActionError(null);
     const supabase = createClient();
@@ -84,21 +98,59 @@ export function QueueManager({
     router.refresh();
   }
 
-  async function moveEntry(index: number, direction: -1 | 1) {
-    const otherIndex = index + direction;
-    if (otherIndex < 0 || otherIndex >= waiting.length) return;
-    const a = waiting[index];
-    const b = waiting[otherIndex];
-    setBusyId(a.id);
+  function handleDragStart(e: React.PointerEvent, id: string, index: number) {
+    if (busyId) return;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragStateRef.current = { id, startIndex: index };
+    setDraggingId(id);
+  }
+
+  function handleDragMove(e: React.PointerEvent) {
+    if (!dragStateRef.current) return;
+    const y = e.clientY;
+    let targetIndex = 0;
+    for (let i = 0; i < localWaiting.length; i++) {
+      const el = rowRefs.current[localWaiting[i].id];
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (y > rect.top + rect.height / 2) targetIndex = i + 1;
+    }
+    targetIndex = Math.min(targetIndex, localWaiting.length - 1);
+    const currentIndex = localWaiting.findIndex((x) => x.id === dragStateRef.current!.id);
+    if (targetIndex !== currentIndex && currentIndex !== -1) {
+      setLocalWaiting((prev) => {
+        const next = [...prev];
+        const [moved] = next.splice(currentIndex, 1);
+        next.splice(targetIndex, 0, moved);
+        return next;
+      });
+    }
+  }
+
+  async function handleDragEnd() {
+    const drag = dragStateRef.current;
+    dragStateRef.current = null;
+    setDraggingId(null);
+    if (!drag) return;
+    const finalIndex = localWaiting.findIndex((x) => x.id === drag.id);
+    if (finalIndex === drag.startIndex) return;
+
     setActionError(null);
+    setBusyId(drag.id);
     const supabase = createClient();
-    const results = await Promise.all([
-      supabase.from("queue_entries").update({ position: b.position }).eq("id", a.id),
-      supabase.from("queue_entries").update({ position: a.position }).eq("id", b.id),
-    ]);
+    const { error } = await supabase.from("queue_entries").upsert(
+      localWaiting.map((entry, i) => ({
+        id: entry.id,
+        queue_id: entry.queue_id,
+        driver_id: entry.driver_id,
+        status: "waiting" as const,
+        position: i + 1,
+      }))
+    );
     setBusyId(null);
-    if (results.some((r) => r.error)) {
+    if (error) {
       setActionError("No se pudo reordenar. Intenta de nuevo.");
+      setLocalWaiting(waiting);
       return;
     }
     router.refresh();
@@ -107,7 +159,7 @@ export function QueueManager({
   async function handleCopy() {
     const text = [
       `🚦 Cola - ${queueName}`,
-      ...waiting.map((e, i) => `${i + 1}. ${e.drivers.full_name}`),
+      ...localWaiting.map((e, i) => `${i + 1}. ${e.drivers.full_name}`),
     ].join("\n");
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -119,7 +171,7 @@ export function QueueManager({
       <button
         type="button"
         onClick={handleCopy}
-        disabled={!waiting.length}
+        disabled={!localWaiting.length}
         className="w-full py-3.5 rounded-xl bg-brand text-white font-bold text-sm disabled:opacity-40"
       >
         {copied ? "✓ Copiado" : "📋 Copiar cola para WhatsApp"}
@@ -128,16 +180,36 @@ export function QueueManager({
       {actionError && <p className="text-sm text-danger">{actionError}</p>}
 
       <div>
-        <h2 className="font-extrabold text-base mb-3">En espera ({waiting.length})</h2>
-        {!waiting.length && (
+        <h2 className="font-extrabold text-base mb-1">En espera ({localWaiting.length})</h2>
+        {localWaiting.length > 0 && (
+          <p className="text-[12px] text-muted mb-3">
+            ⠿ Arrastra para reordenar · ✓ Listo · ↩ Retirar
+          </p>
+        )}
+        {!localWaiting.length && (
           <p className="text-sm text-muted">Todavía nadie está en la fila.</p>
         )}
         <div className="flex flex-col gap-2">
-          {waiting.map((e, i) => (
+          {localWaiting.map((e, i) => (
             <div
               key={e.id}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-bg-elevated border border-border"
+              ref={(el) => {
+                rowRefs.current[e.id] = el;
+              }}
+              className={`flex items-center gap-2 p-3 rounded-2xl bg-bg-elevated border ${
+                draggingId === e.id ? "border-brand" : "border-border"
+              }`}
             >
+              <div
+                onPointerDown={(ev) => handleDragStart(ev, e.id, i)}
+                onPointerMove={handleDragMove}
+                onPointerUp={handleDragEnd}
+                onPointerCancel={handleDragEnd}
+                style={{ touchAction: "none" }}
+                className="w-7 h-9 flex items-center justify-center text-muted shrink-0 select-none text-lg"
+              >
+                ⠿
+              </div>
               <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-sm font-extrabold text-white shrink-0">
                 {i + 1}
               </div>
@@ -149,40 +221,26 @@ export function QueueManager({
                     .join(" · ") || "—"}
                 </div>
               </div>
-              <div className="flex flex-col gap-1 shrink-0">
-                <button
-                  type="button"
-                  disabled={i === 0 || busyId !== null}
-                  onClick={() => moveEntry(i, -1)}
-                  className="w-7 h-7 rounded-lg border border-border text-sm disabled:opacity-30"
-                >
-                  ▲
-                </button>
-                <button
-                  type="button"
-                  disabled={i === waiting.length - 1 || busyId !== null}
-                  onClick={() => moveEntry(i, 1)}
-                  className="w-7 h-7 rounded-lg border border-border text-sm disabled:opacity-30"
-                >
-                  ▼
-                </button>
-              </div>
-              <div className="flex flex-col gap-1.5 shrink-0">
+              <div className="flex gap-1.5 shrink-0">
                 <button
                   type="button"
                   disabled={busyId !== null}
-                  onClick={() => completeEntry(e.id)}
-                  className="text-[12px] font-bold text-whatsapp px-2 py-1 rounded-full border border-whatsapp"
+                  onClick={() => returnToPool(e.id)}
+                  aria-label="Listo"
+                  title="Listo"
+                  className="w-8 h-8 rounded-lg border border-whatsapp text-whatsapp flex items-center justify-center font-bold disabled:opacity-40"
                 >
-                  ✓ Listo
+                  ✓
                 </button>
                 <button
                   type="button"
                   disabled={busyId !== null}
-                  onClick={() => removeEntry(e.id)}
-                  className="text-[12px] font-bold text-danger px-2 py-1 rounded-full border border-danger"
+                  onClick={() => returnToPool(e.id)}
+                  aria-label="Retirar"
+                  title="Retirar"
+                  className="w-8 h-8 rounded-lg border border-border text-muted flex items-center justify-center font-bold disabled:opacity-40"
                 >
-                  ✕ Quitar
+                  ↩
                 </button>
               </div>
             </div>
@@ -190,7 +248,7 @@ export function QueueManager({
         </div>
       </div>
 
-      <PoolSection pool={pool} onAdd={addToQueue} busyId={busyId} />
+      <PoolSection pool={pool} onAdd={addToQueue} onRemove={removeFromEvent} busyId={busyId} />
       <AddParticipantsForm
         queueId={queueId}
         allDrivers={allDrivers}
@@ -203,10 +261,12 @@ export function QueueManager({
 function PoolSection({
   pool,
   onAdd,
+  onRemove,
   busyId,
 }: {
   pool: QueueEntry[];
   onAdd: (id: string) => void;
+  onRemove: (id: string) => void;
   busyId: string | null;
 }) {
   const [query, setQuery] = useState("");
@@ -229,16 +289,30 @@ function PoolSection({
       )}
       <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
         {filtered.map((e) => (
-          <button
+          <div
             key={e.id}
-            type="button"
-            disabled={busyId !== null}
-            onClick={() => onAdd(e.id)}
-            className="flex items-center justify-between gap-3 p-3 rounded-xl bg-bg-elevated border border-border text-left disabled:opacity-50"
+            className="flex items-center gap-2 p-3 rounded-xl bg-bg-elevated border border-border"
           >
-            <span className="font-semibold text-sm truncate">{e.drivers.full_name}</span>
-            <span className="text-sm text-brand font-bold shrink-0">+ Agregar</span>
-          </button>
+            <button
+              type="button"
+              disabled={busyId !== null}
+              onClick={() => onAdd(e.id)}
+              className="flex-1 flex items-center justify-between gap-3 text-left disabled:opacity-50 min-w-0"
+            >
+              <span className="font-semibold text-sm truncate">{e.drivers.full_name}</span>
+              <span className="text-sm text-brand font-bold shrink-0">+ Agregar</span>
+            </button>
+            <button
+              type="button"
+              disabled={busyId !== null}
+              onClick={() => onRemove(e.id)}
+              aria-label="Quitar del evento"
+              title="Quitar del evento"
+              className="w-8 h-8 rounded-lg border border-danger text-danger flex items-center justify-center font-bold shrink-0 disabled:opacity-40"
+            >
+              ✕
+            </button>
+          </div>
         ))}
         {query.trim() && !filtered.length && (
           <p className="text-sm text-muted">Sin resultados para &quot;{query}&quot;.</p>
