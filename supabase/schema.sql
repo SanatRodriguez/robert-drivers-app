@@ -93,7 +93,8 @@ create table public.drivers (
   plate text,
   phone text,
   photo_url text,
-  is_active boolean not null default true
+  is_active boolean not null default true,
+  seats integer
 );
 
 -- Vista pública segura: sin teléfono del conductor
@@ -449,3 +450,38 @@ begin
   return new;
 end;
 $$ language plpgsql security definer;
+
+-- ============================================================
+-- Cola de conductores por evento (gestion manual desde el admin).
+-- Cada evento crea su propia cola con nombre; queue_entries guarda
+-- tanto el "pool" de participantes del evento como el orden en vivo
+-- de la fila (position solo se usa cuando status = 'waiting').
+-- ============================================================
+create table public.driver_queues (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  created_at timestamptz not null default now()
+);
+
+create table public.queue_entries (
+  id uuid primary key default gen_random_uuid(),
+  queue_id uuid not null references public.driver_queues(id) on delete cascade,
+  driver_id uuid not null references public.drivers(id) on delete cascade,
+  status text not null default 'pool' check (status in ('pool','waiting','completed','removed')),
+  position integer,
+  created_at timestamptz not null default now(),
+  unique (queue_id, driver_id)
+);
+
+alter table public.driver_queues enable row level security;
+alter table public.queue_entries enable row level security;
+
+create policy "driver_queues: solo admin"
+  on public.driver_queues for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "queue_entries: solo admin"
+  on public.queue_entries for all
+  using (public.is_admin())
+  with check (public.is_admin());

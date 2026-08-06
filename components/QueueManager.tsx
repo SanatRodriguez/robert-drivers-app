@@ -28,6 +28,7 @@ export function QueueManager({
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const waiting = entries
     .filter((e) => e.status === "waiting")
@@ -36,30 +37,51 @@ export function QueueManager({
 
   async function addToQueue(entryId: string) {
     setBusyId(entryId);
+    setActionError(null);
     const supabase = createClient();
     const nextPosition = (waiting.at(-1)?.position ?? 0) + 1;
-    await supabase
+    const { error } = await supabase
       .from("queue_entries")
       .update({ status: "waiting", position: nextPosition })
       .eq("id", entryId);
-    router.refresh();
     setBusyId(null);
+    if (error) {
+      setActionError("No se pudo agregar a la fila. Intenta de nuevo.");
+      return;
+    }
+    router.refresh();
   }
 
   async function completeEntry(entryId: string) {
     setBusyId(entryId);
+    setActionError(null);
     const supabase = createClient();
-    await supabase.from("queue_entries").update({ status: "pool", position: null }).eq("id", entryId);
-    router.refresh();
+    const { error } = await supabase
+      .from("queue_entries")
+      .update({ status: "pool", position: null })
+      .eq("id", entryId);
     setBusyId(null);
+    if (error) {
+      setActionError("No se pudo actualizar. Intenta de nuevo.");
+      return;
+    }
+    router.refresh();
   }
 
   async function removeEntry(entryId: string) {
     setBusyId(entryId);
+    setActionError(null);
     const supabase = createClient();
-    await supabase.from("queue_entries").update({ status: "removed", position: null }).eq("id", entryId);
-    router.refresh();
+    const { error } = await supabase
+      .from("queue_entries")
+      .update({ status: "removed", position: null })
+      .eq("id", entryId);
     setBusyId(null);
+    if (error) {
+      setActionError("No se pudo quitar. Intenta de nuevo.");
+      return;
+    }
+    router.refresh();
   }
 
   async function moveEntry(index: number, direction: -1 | 1) {
@@ -68,13 +90,18 @@ export function QueueManager({
     const a = waiting[index];
     const b = waiting[otherIndex];
     setBusyId(a.id);
+    setActionError(null);
     const supabase = createClient();
-    await Promise.all([
+    const results = await Promise.all([
       supabase.from("queue_entries").update({ position: b.position }).eq("id", a.id),
       supabase.from("queue_entries").update({ position: a.position }).eq("id", b.id),
     ]);
-    router.refresh();
     setBusyId(null);
+    if (results.some((r) => r.error)) {
+      setActionError("No se pudo reordenar. Intenta de nuevo.");
+      return;
+    }
+    router.refresh();
   }
 
   async function handleCopy() {
@@ -97,6 +124,8 @@ export function QueueManager({
       >
         {copied ? "✓ Copiado" : "📋 Copiar cola para WhatsApp"}
       </button>
+
+      {actionError && <p className="text-sm text-danger">{actionError}</p>}
 
       <div>
         <h2 className="font-extrabold text-base mb-3">En espera ({waiting.length})</h2>
@@ -123,7 +152,7 @@ export function QueueManager({
               <div className="flex flex-col gap-1 shrink-0">
                 <button
                   type="button"
-                  disabled={i === 0 || busyId === e.id}
+                  disabled={i === 0 || busyId !== null}
                   onClick={() => moveEntry(i, -1)}
                   className="w-7 h-7 rounded-lg border border-border text-sm disabled:opacity-30"
                 >
@@ -131,7 +160,7 @@ export function QueueManager({
                 </button>
                 <button
                   type="button"
-                  disabled={i === waiting.length - 1 || busyId === e.id}
+                  disabled={i === waiting.length - 1 || busyId !== null}
                   onClick={() => moveEntry(i, 1)}
                   className="w-7 h-7 rounded-lg border border-border text-sm disabled:opacity-30"
                 >
@@ -141,7 +170,7 @@ export function QueueManager({
               <div className="flex flex-col gap-1.5 shrink-0">
                 <button
                   type="button"
-                  disabled={busyId === e.id}
+                  disabled={busyId !== null}
                   onClick={() => completeEntry(e.id)}
                   className="text-[12px] font-bold text-whatsapp px-2 py-1 rounded-full border border-whatsapp"
                 >
@@ -149,7 +178,7 @@ export function QueueManager({
                 </button>
                 <button
                   type="button"
-                  disabled={busyId === e.id}
+                  disabled={busyId !== null}
                   onClick={() => removeEntry(e.id)}
                   className="text-[12px] font-bold text-danger px-2 py-1 rounded-full border border-danger"
                 >
@@ -203,7 +232,7 @@ function PoolSection({
           <button
             key={e.id}
             type="button"
-            disabled={busyId === e.id}
+            disabled={busyId !== null}
             onClick={() => onAdd(e.id)}
             className="flex items-center justify-between gap-3 p-3 rounded-xl bg-bg-elevated border border-border text-left disabled:opacity-50"
           >
@@ -232,12 +261,14 @@ function AddParticipantsForm({
   const [text, setText] = useState("");
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ matched: number; created: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
     const names = text.split("\n").map((n) => n.trim()).filter(Boolean);
     if (!names.length) return;
     setSaving(true);
     setResult(null);
+    setError(null);
     const supabase = createClient();
 
     const existingByDriverId = new Map(existingEntries.map((e) => [e.driver_id, e]));
@@ -253,10 +284,15 @@ function AddParticipantsForm({
 
     let createdIds: string[] = [];
     if (unmatchedNames.length) {
-      const { data } = await supabase
+      const { data, error: driversError } = await supabase
         .from("drivers")
         .insert(unmatchedNames.map((full_name) => ({ full_name })))
         .select("id");
+      if (driversError) {
+        setSaving(false);
+        setError("No se pudieron crear los conductores nuevos. No se agregó nadie — intenta de nuevo.");
+        return;
+      }
       createdIds = (data || []).map((d) => d.id);
     }
 
@@ -264,19 +300,29 @@ function AddParticipantsForm({
     const toInsert = allIds.filter((id) => !existingByDriverId.has(id));
     const toRevive = allIds.filter((id) => existingByDriverId.get(id)?.status === "removed");
 
+    let mutationError = false;
     if (toInsert.length) {
-      await supabase
+      const { error: insertError } = await supabase
         .from("queue_entries")
         .insert(toInsert.map((driver_id) => ({ queue_id: queueId, driver_id, status: "pool" as const })));
+      if (insertError) mutationError = true;
     }
     if (toRevive.length) {
-      await supabase
+      const { error: reviveError } = await supabase
         .from("queue_entries")
         .update({ status: "pool" })
         .in("id", toRevive.map((id) => existingByDriverId.get(id)!.id));
+      if (reviveError) mutationError = true;
     }
 
     setSaving(false);
+    if (mutationError) {
+      setError(
+        "Los conductores se reconocieron/crearon, pero algunos no se pudieron sumar a esta cola. Vuelve a pegar los mismos nombres para reintentar."
+      );
+      router.refresh();
+      return;
+    }
     setResult({ matched: matchedIds.length, created: createdIds.length });
     setText("");
     router.refresh();
@@ -301,6 +347,7 @@ function AddParticipantsForm({
           ✓ {result.matched} reconocidos, {result.created} nuevos agregados a tu base de conductores.
         </p>
       )}
+      {error && <p className="text-sm text-danger">{error}</p>}
       <button
         type="button"
         disabled={!text.trim() || saving}
