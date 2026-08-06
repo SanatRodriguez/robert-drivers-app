@@ -425,3 +425,27 @@ $$;
 create trigger trg_notify_new_booking
   after insert on public.bookings
   for each row execute procedure public.notify_new_booking();
+
+-- ============================================================
+-- Aceptacion de Terminos y Politica de Privacidad al registrarse
+-- (solo aplica a registros nuevos, no retroactivo).
+-- ============================================================
+alter table public.profiles add column if not exists terms_accepted_at timestamptz;
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name, phone, terms_accepted_at)
+  values (
+    new.id,
+    new.raw_user_meta_data ->> 'full_name',
+    new.raw_user_meta_data ->> 'phone',
+    case
+      when new.raw_user_meta_data ->> 'terms_accepted_at' is not null
+        then (new.raw_user_meta_data ->> 'terms_accepted_at')::timestamptz
+      else null
+    end
+  );
+  return new;
+end;
+$$ language plpgsql security definer;

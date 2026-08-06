@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { LegalModal } from "@/components/LegalModal";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -12,12 +13,15 @@ export default function SignupPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [legalTab, setLegalTab] = useState<"terminos" | "privacidad" | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!acceptedTerms) return;
     setLoading(true);
     setError(null);
 
@@ -29,6 +33,7 @@ export default function SignupPage() {
         data: {
           full_name: fullName,
           phone: `${phonePrefix.trim()} ${phoneNumber.trim()}`,
+          terms_accepted_at: new Date().toISOString(),
         },
         emailRedirectTo: `${window.location.origin}/`,
       },
@@ -128,16 +133,45 @@ export default function SignupPage() {
           />
         </div>
 
+        <label className="flex items-start gap-2.5">
+          <input
+            type="checkbox"
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-brand shrink-0"
+          />
+          <span className="text-sm text-muted leading-snug">
+            Acepto los{" "}
+            <button
+              type="button"
+              onClick={() => setLegalTab("terminos")}
+              className="text-brand font-semibold underline underline-offset-2"
+            >
+              Términos y Condiciones
+            </button>{" "}
+            y la{" "}
+            <button
+              type="button"
+              onClick={() => setLegalTab("privacidad")}
+              className="text-brand font-semibold underline underline-offset-2"
+            >
+              Política de Privacidad
+            </button>
+          </span>
+        </label>
+
         {error && <p className="text-sm text-danger">{error}</p>}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !acceptedTerms}
           className="w-full py-4 rounded-xl bg-brand text-white font-bold text-sm disabled:opacity-60"
         >
           {loading ? "Creando cuenta..." : "Crear cuenta"}
         </button>
       </form>
+
+      {legalTab && <LegalModal initialTab={legalTab} onClose={() => setLegalTab(null)} />}
 
       <p className="text-sm text-muted mt-6 text-center">
         ¿Ya tienes cuenta?{" "}
