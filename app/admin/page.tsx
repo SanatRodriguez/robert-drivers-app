@@ -42,6 +42,12 @@ export default async function AdminPage() {
 
       <div className="flex flex-wrap gap-2 mb-6">
         <Link
+          href="/admin/servicios"
+          className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
+        >
+          🧭 Servicios
+        </Link>
+        <Link
           href="/admin/eventos"
           className="text-sm font-bold text-brand border border-brand/40 rounded-full px-3 py-1.5"
         >
