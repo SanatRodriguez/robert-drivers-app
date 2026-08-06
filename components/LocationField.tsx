@@ -71,7 +71,7 @@ export function LocationField({
         <button
           type="button"
           onClick={() => setShowSave(true)}
-          className="text-sm text-brand mt-2"
+          className="text-base text-brand font-semibold mt-2"
         >
           + Guardar esta dirección
         </button>

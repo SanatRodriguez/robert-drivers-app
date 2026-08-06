@@ -12,6 +12,7 @@ import {
   buildGoogleMapsLink,
 } from "@/lib/whatsapp";
 import type { Location } from "@/lib/types";
+import { nowPlusOneHourLima } from "@/lib/limaTime";
 
 const EMPTY_LOCATION: Location = { address_text: "", lat: null, lng: null };
 
@@ -29,6 +30,11 @@ export default function TrasladosPage() {
   const [cuando, setCuando] = useState("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
+
+  function handleCuandoChange(v: string) {
+    setCuando(v);
+    if (v === "Hoy" && !hora) setHora(nowPlusOneHourLima());
+  }
   const [origen, setOrigen] = useState<Location>(EMPTY_LOCATION);
   const [destino, setDestino] = useState<Location>(EMPTY_LOCATION);
   const [submitting, setSubmitting] = useState(false);
@@ -76,7 +82,7 @@ export default function TrasladosPage() {
 
   return (
     <div className="flex-1 flex flex-col py-4">
-      <p className="text-sm font-mono text-muted mb-4">📍 TRASLADOS</p>
+      <p className="text-sm font-mono text-muted mb-4">📍 VIAJES</p>
       <StepWizard
         submitting={submitting}
         onFinish={handleFinish}
@@ -86,7 +92,7 @@ export default function TrasladosPage() {
             canAdvance: !!cuando && (cuando !== "Otro día" || !!fecha) && !!hora,
             content: (
               <div className="space-y-4">
-                <PillGroup options={cuandoOpciones} value={cuando} onChange={setCuando} />
+                <PillGroup options={cuandoOpciones} value={cuando} onChange={handleCuandoChange} />
                 {cuando === "Otro día" && (
                   <div>
                     <label className="block text-[12px] font-mono text-muted mb-2">
@@ -108,8 +114,13 @@ export default function TrasladosPage() {
                     type="time"
                     value={hora}
                     onChange={(e) => setHora(e.target.value)}
-                    className="w-full px-3 py-3 rounded-xl bg-bg-elevated border border-border text-sm"
+                    className="w-full px-4 py-4 rounded-xl bg-bg-elevated border border-border text-4xl font-mono font-bold tabular-nums text-center tracking-wider"
                   />
+                  {cuando === "Hoy" && (
+                    <p className="text-[13px] text-muted mt-1.5">
+                      Precargada con la hora actual + 1 hora. Puedes cambiarla.
+                    </p>
+                  )}
                 </div>
               </div>
             ),

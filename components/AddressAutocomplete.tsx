@@ -179,19 +179,35 @@ export function AddressAutocomplete({
           "w-full px-4 py-3.5 rounded-xl bg-bg-elevated border border-border text-sm outline-none focus:border-brand"
         }
       />
-      <button
-        type="button"
-        onClick={handleUseMyLocation}
-        disabled={locating}
-        className="text-sm text-brand font-semibold mt-2 disabled:opacity-60"
-      >
-        {locating ? "Ubicándote..." : "📍 Usar mi ubicación actual"}
-      </button>
       {locateError && <p className="text-[13px] text-danger mt-1">{locateError}</p>}
-      <div
-        ref={mapDivRef}
-        className="w-full h-80 rounded-xl border border-border mt-2 overflow-hidden bg-bg-elevated"
-      />
+      <div className="relative mt-2">
+        <div
+          ref={mapDivRef}
+          className="w-full h-80 rounded-xl border border-border overflow-hidden bg-bg-elevated"
+        />
+        <button
+          type="button"
+          onClick={handleUseMyLocation}
+          disabled={locating}
+          aria-label="Usar mi ubicación actual"
+          className="absolute bottom-3 right-3 w-11 h-11 rounded-full bg-bg-elevated border border-border shadow-lg flex items-center justify-center text-brand disabled:opacity-60 active:scale-95 transition"
+        >
+          {locating ? (
+            <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="7" />
+              <line x1="12" y1="1" x2="12" y2="4" />
+              <line x1="12" y1="20" x2="12" y2="23" />
+              <line x1="1" y1="12" x2="4" y2="12" />
+              <line x1="20" y1="12" x2="23" y2="12" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
+          )}
+        </button>
+      </div>
       {location.lat && location.lng && (
         <p className="text-[13px] text-muted mt-1.5">
           📍 Arrastra el pin o toca el mapa para ajustar el punto exacto

@@ -18,7 +18,7 @@ export default async function MisDireccionesPage() {
       <p className="text-sm font-mono text-muted mb-1">MIS DIRECCIONES</p>
       <h1 className="text-2xl font-extrabold mb-1">Ubicaciones guardadas</h1>
       <p className="text-sm text-muted mb-6">
-        Úsalas para pedir Traslados o Chofer de reemplazo más rápido.
+        Úsalas para pedir Viajes o Chofer de reemplazo más rápido.
       </p>
       <LocationManager />
     </div>

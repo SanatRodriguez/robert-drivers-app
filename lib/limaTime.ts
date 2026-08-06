@@ -20,6 +20,21 @@ export function formatLimaDate(iso: string): string {
   });
 }
 
+// Hora actual de Lima + 1 hora, como "HH:MM" — para precargar el campo de
+// hora cuando el cliente pide el servicio para "Hoy".
+export function nowPlusOneHourLima(): string {
+  const d = new Date(Date.now() + 60 * 60 * 1000);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: LIMA_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const hh = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const mm = parts.find((p) => p.type === "minute")?.value ?? "00";
+  return `${hh}:${mm}`;
+}
+
 export function formatLimaDateTime(iso: string): string {
   return new Date(iso).toLocaleString("es-PE", {
     timeZone: LIMA_TZ,
